@@ -20,7 +20,6 @@ app.post('/transcription', async (req, res) => {
     console.log(`Received transcript for bot ID: ${botId}`);
     console.log(`Transcript: ${combinedText}`);
     
-    // Find the meeting with the corresponding botId
     const meeting = await Meeting.findOne({ botId });
 
     if (!meeting) {
@@ -28,7 +27,6 @@ app.post('/transcription', async (req, res) => {
       return res.status(404).json({ success: false, message: "Meeting not found" });
     }
 
-    // Append the transcript to the meeting's transcript array
     meeting.transcript.push({
       original_transcript_id: req.body.data.transcript.original_transcript_id,
       speaker: req.body.data.transcript.speaker,
@@ -43,8 +41,6 @@ app.post('/transcription', async (req, res) => {
     await meeting.save();
 
     console.log("Transcript appended to the meeting.");
-    console.log(meeting)
-
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error processing transcription:", error);
@@ -55,6 +51,9 @@ app.post('/transcription', async (req, res) => {
 
 const MeetingRouter = require("./routes/MeetingRoutes")
 app.use("/meeting", MeetingRouter)
+
+const UserRouter = require("./routes/UserRoutes")
+app.use("/user", UserRouter)
 
 
 mongoose.connect(process.env.DBURI);

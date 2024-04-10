@@ -43,15 +43,13 @@ const startRecording = async (req, res) => {
 
         const bot = await recallFetch(meeting.meetingUrl);
 
-        console.log('recall bot', bot);
-        req.session.botId = bot.id;
         meeting.botId = bot.id;
         await meeting.save();
         return res.json({
             botId: bot.id,
         });
     } catch (e) {
-        //console.log(e)
+      console.log(e)
         return res.status(500).json({ error: 'Server Error!' });
 
     }
@@ -82,8 +80,7 @@ const recallFetch= async (meetingUrl)=>{
         },
       }
 
-      console.log(reqBody)
-      console.log(headers)
+      
   const res = await axios.post(
     `https://us-west-2.recall.ai/api/v1/bot`,
     reqBody,{
@@ -92,20 +89,7 @@ const recallFetch= async (meetingUrl)=>{
 
     
   );
-
-  if (res.status > 299) {
-    // console.error(
-    //   `Recall API returned ${res.url}: ${res.status}`,
-    //   await res.text()
-    // );
-
-
-    const e = new Error("Recall API Error");
-    e.code = 500;
-    throw e;
-  }
-
-  return await res.json();
+    return res.data;
 }
 
 module.exports = {
