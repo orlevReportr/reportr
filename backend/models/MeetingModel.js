@@ -47,6 +47,10 @@ const MeetingSchema = mongoose.Schema({
         type: Number,
         required: true,
     },
+    meetingTitle:{
+        type:String,
+        required:true,
+    },
     userId: {
         type: Number,
         required: true,
@@ -62,7 +66,14 @@ const MeetingSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    transcript: [TranscriptSchema], // Define transcript as an array of TranscriptSchema objects
+    summary:{
+        type:String,
+    
+    },
+    formatedSummary:{
+        type:String
+    },
+    transcript: [TranscriptSchema], 
 }, { timestamps: true });
 
 const Meeting = mongoose.model("Meeting", MeetingSchema);

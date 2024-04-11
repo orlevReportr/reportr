@@ -3,11 +3,12 @@ const bodyParser = require('body-parser');
 const dotenv = require("dotenv");
 const Meeting = require("./models/MeetingModel");
 const mongoose = require("mongoose");
+const cors = require('cors');
 
 dotenv.config();
 const app = express();
 const port = 5001;
-const router = express.Router();
+app.use(cors());
 
 app.use(bodyParser.json());
 

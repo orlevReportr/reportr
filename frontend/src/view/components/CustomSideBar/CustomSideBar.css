@@ -1,0 +1,16 @@
+.custom-sidebar{
+
+display: flex;
+flex-direction: column;
+background-color: #141414;
+width: 30%;
+}
+
+.menu-item{
+    padding: 15px 0px;
+    cursor: pointer;
+}
+
+.menu-item:hover{
+    color: rgba(255, 255, 255, 0.85) !important;
+}

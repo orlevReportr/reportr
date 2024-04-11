@@ -1,34 +1,30 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import Meetings from './view/pages/Meetings/Meetings'
+import Meeting from './view/pages/Meeting/Meeting'
+import Login from './view/pages/Login/Login'
+import Register from './view/pages/Register/Register'
+import Homepage from './view/pages/Homepage/Homepage'
+import { Route,Routes } from 'react-router-dom';
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="App" style={{width:"100vw",height:"100vh"}}>
+   
+<Routes >
+  <Route path= "/" element ={<Homepage selectedItem="dashboard"/>}  />
+  <Route path= "/signup" element ={<Register/>}  />
+  <Route path= "/login" element ={<Login/>}  />
+  <Route path= "/meetings" element ={<Meetings selectedItem="meetings"/>}  />
+  <Route path= "/meeting/:meetingId" element ={<Meeting/>}  />
+
+
+
+</Routes>
+    
+    </div>
   )
 }
 

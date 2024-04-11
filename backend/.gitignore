@@ -4,6 +4,8 @@ node_modules/
 .idea
 notes.md
 .env.local
+.env*
+.env
 
 *.pdfnode_modules/
 *.zip
@@ -11,5 +13,4 @@ notes.md
 .idea
 notes.md
 .env.local
-
 *.pdf
