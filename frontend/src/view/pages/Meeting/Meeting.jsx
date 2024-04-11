@@ -102,7 +102,9 @@ function Meeting() {
   useEffect(() => {
     setFrameLoading(true);
     axios
-      .get(`${import.meta.env.VITE_BACKEND}/meeting/${meetingId}`)
+      .post(`${import.meta.env.VITE_BACKEND}/meeting`,{
+        meetingId
+      })
       .then((res) => {
         setMeeting(res.data.meeting);
         console.log(res.data.meeting.status);

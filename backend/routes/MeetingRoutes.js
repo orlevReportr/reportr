@@ -8,12 +8,12 @@ const{
   createMeeting,
   stopRecording,
   getUserMeetings,
-  getOneMeetings
+  getOneMeeting
 } = require("../controllers/MeetingController")
 
 router.post("/add",createMeeting)
 router.post("/get",getUserMeetings)
-router.get("/:meetingId",getOneMeetings)
+router.post("/",getOneMeeting)
 
 router.post("/start-recording",startRecording)
 router.post("/stop-recording",stopRecording) 

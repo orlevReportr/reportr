@@ -192,10 +192,9 @@ const getUserMeetings=async (req,res)=>{
   }
 }
 
-const getOneMeetings=async (req,res)=>{
+const getOneMeeting=async (req,res)=>{
   try{
-      const meetingId=req.params.meetingId;
-      console.log(meetingId);
+      const {meetingId}=req.body;
       const meeting=await Meeting.findOne({_id:meetingId})
 
       return res.status(200).json({
@@ -212,5 +211,5 @@ const getOneMeetings=async (req,res)=>{
 }
 
 module.exports = {
-  startRecording,createMeeting,stopRecording,getUserMeetings,getOneMeetings
+  startRecording,createMeeting,stopRecording,getUserMeetings,getOneMeeting
 };
