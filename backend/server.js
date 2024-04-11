@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const Meeting = require("./models/MeetingModel");
 const mongoose = require("mongoose");
 const cors = require('cors');
+const path  = require('path')
 
 dotenv.config();
 const app = express();
@@ -11,6 +12,10 @@ const port = 5001;
 app.use(cors());
 
 app.use(bodyParser.json());
+const _dirname = path.dirname("")
+const buildPath = path.join(_dirname  , "../frontend/dist");
+
+app.use(express.static(buildPath))
 
 app.post('/transcription', async (req, res) => {
   try {
@@ -68,6 +73,20 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
+
+app.get("/*", function(req, res){
+
+  res.sendFile(
+      path.join(__dirname, "../frontend/dist/index.html"),
+      function (err) {
+        if (err) {
+          console.log(err);
+          res.status(500).send(err);
+        }
+      }
+    );
+
+})
 // Start the server
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
