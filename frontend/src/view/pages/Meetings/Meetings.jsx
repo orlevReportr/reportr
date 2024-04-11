@@ -72,6 +72,9 @@ const[frameLoading,setFrameLoading]=useState(false);
         setIsModalOpen(false);
 
         showtoast("success", "Created meeting successfully");
+        setMeetings(prevMeeting=>{
+          return [...prevMeeting,res.data.meeting]
+        })
       })
       .catch((err) => {
         setIsModalOpen(false);

@@ -115,8 +115,7 @@ const stopRecording = async (req, res) => {
     const summary = await getSummary(formatTranscript(meeting.transcript)); // Await the summary here
 
     meeting.status = 'Stopped';
-    meeting.summary = summary; // Assign the summary to meeting.summary
-    console.log(meeting.summary)
+    meeting.summary = summary; 
     await meeting.save();
 
     return res.status(200).json({ message: "Recording Stopped ", summary: summary }); // Return the summary
@@ -167,7 +166,6 @@ const getSummary = async (transcript, meetingId) => {
 
   try {
     const response = await axios.post(url, data, { headers });
-    console.log("saved meeting summary")
     return response.data.choices[0].message.content;
   } catch (error) {
     console.log(error);
