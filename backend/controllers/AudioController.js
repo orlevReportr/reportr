@@ -1,5 +1,5 @@
 const Meeting = require("../models/MeetingModel");
-const Counter = require("../models/counterModel");
+const Counter = require("../models/CounterModel");
 const axios = require('axios');
 
 const addAudio=async(req,res)=>{

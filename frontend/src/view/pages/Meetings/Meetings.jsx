@@ -1,20 +1,39 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import CustomSideBar from "../../components/CustomSideBar/CustomSideBar";
-import { PlusOutlined, LinkOutlined,InfoCircleOutlined, DownOutlined,CheckCircleOutlined,LoadingOutlined ,CalendarOutlined,ClockCircleOutlined,PlayCircleOutlined} from "@ant-design/icons";
-import { FloatButton, Input, Modal, Dropdown, Button, message  ,Spin} from "antd";
+import {
+  PlusOutlined,
+  LinkOutlined,
+  InfoCircleOutlined,
+  MenuOutlined,
+  DownOutlined,
+  CheckCircleOutlined,
+  LoadingOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import {
+  FloatButton,
+  Input,
+  Modal,
+  Dropdown,
+  Button,
+  message,
+  Spin,
+} from "antd";
 
 import axios from "axios";
 import { UserData } from "../../../utils/UserData";
 
-import "./Meetings.css"
+import "./Meetings.css";
 
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 function Meetings({ selectedItem }) {
   const [buttonLoading, setButtonLoading] = useState(false);
-const[frameLoading,setFrameLoading]=useState(false);
+  const [frameLoading, setFrameLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const userData = UserData();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -72,9 +91,9 @@ const[frameLoading,setFrameLoading]=useState(false);
         setIsModalOpen(false);
 
         showtoast("success", "Created meeting successfully");
-        setMeetings(prevMeeting=>{
-          return [...prevMeeting,res.data.meeting]
-        })
+        setMeetings((prevMeeting) => {
+          return [...prevMeeting, res.data.meeting];
+        });
       })
       .catch((err) => {
         setIsModalOpen(false);
@@ -87,92 +106,114 @@ const[frameLoading,setFrameLoading]=useState(false);
         setButtonLoading(false);
       });
   };
-  const [meetings,setMeetings]=useState([]);
+  const [meetings, setMeetings] = useState([]);
 
-  useEffect(()=>{
-    setFrameLoading(true)
-    axios.post(`${import.meta.env.VITE_BACKEND}/meeting/get`, {
-      userId: userData.id,
-    }).then((res)=>{
-      setMeetings(res.data.meetings)
-
-    }).catch((e)=>{
-      console.log(e)
-    }).finally(()=>{
-      setFrameLoading(false)
-
-    });
-  },[])
+  useEffect(() => {
+    setFrameLoading(true);
+    axios
+      .post(`${import.meta.env.VITE_BACKEND}/meeting/get`, {
+        userId: userData.id,
+      })
+      .then((res) => {
+        setMeetings(res.data.meetings);
+      })
+      .catch((e) => {
+        console.log(e);
+      })
+      .finally(() => {
+        setFrameLoading(false);
+      });
+  }, []);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return date.toLocaleDateString("en-US", options);
   };
 
-const getTag=(status)=>{
-  if(status==="Waiting"){
-    return <ClockCircleOutlined style={{marginRight:10}}/>
+  const getTag = (status) => {
+    if (status === "Waiting") {
+      return <ClockCircleOutlined style={{ marginRight: 10 }} />;
+    } else if (status === "Started") {
+      return <PlayCircleOutlined style={{ marginRight: 10 }} />;
+    } else if (status === "Stopped") {
+      return <CheckCircleOutlined style={{ marginRight: 10 }} />;
+    }
+  };
 
-  }else if(status==="Started"){
-    return       <PlayCircleOutlined style={{marginRight:10}}/>
-
-
-  }else if(status==="Stopped"){
-    return       <CheckCircleOutlined style={{marginRight:10}}/>
-
-
-  }
-}
-
+  const [drawer, setDrawer] = useState(false);
   return (
-    <div style={{ display: "flex", width: "100%", flexDirection: "row" }}>
-      <CustomSideBar selectedItem="meetings" />
-      <div style={{ width: "80%",display:"flex",flexDirection:"column",alignContent:"center",justifyContent:"start",margin:20 }}>
-        <h1>My Meetings</h1>
-        {
-          frameLoading?<Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />:
-          meetings.length===0?<span>No meetings</span>:<div style={{display:"flex",flexWrap:"wrap",gap:10,alignItems:"center",justifyContent:"start",alignContent:"center"}}>
-            {
-              meetings.map((meeting)=>{
-                return (
-                  <div className="meeting-container">
-                    <div style={{padding:10,borderBottom:"1px grey solid"}}>
-                    <span >
-                      {meeting.meetingTitle}
-                    </span>
-                      </div>
+    <div style={{ display: "flex", width: "100%", flexDirection: "row",height:"100%" }}>
+      <CustomSideBar selectedItem="meetings" drawer={drawer} />
+      <div
+        style={{
+          width: "80%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          margin: 20,
+        }}
+        onClick={() => setDrawer(!drawer)}
+      >
+        <div className="drawer-button">
+          <MenuOutlined onClick={() => setDrawer(!drawer)} />
+        </div>
+       <div>
+       <h1>My Meetings</h1>
+        {frameLoading ? (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        ) : meetings.length === 0 ? (
+          <span>No meetings</span>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 10,
+              alignItems: "center",
+              justifyContent: "start",
+              alignContent: "center",
+            }}
+          >
+            {meetings.map((meeting) => {
+              return (
+                <div className="meeting-container">
+                  <div style={{ padding: 10, borderBottom: "1px grey solid" }}>
+                    <span>{meeting.meetingTitle}</span>
+                  </div>
 
-                      <div style={{padding:10}}>
-                    <span >
-                    <CalendarOutlined style={{marginRight:10}}/>
-                    {formatDate(meeting.createdAt)}
-
+                  <div style={{ padding: 10 }}>
+                    <span>
+                      <CalendarOutlined style={{ marginRight: 10 }} />
+                      {formatDate(meeting.createdAt)}
                     </span>
-                      </div>
-                      <div style={{padding:10}}>
-                    <span >
-                    {getTag(meeting.status)}
-                    {meeting.status}
-
+                  </div>
+                  <div style={{ padding: 10 }}>
+                    <span>
+                      {getTag(meeting.status)}
+                      {meeting.status}
                     </span>
-                      </div>
-                      <div style={{padding:10}}>
-                    
-                    <span style={{color:"var(--primary-color)",textDecoration:"underline",cursor:'pointer'}} onClick={()=>{
-                      navigate(`/meeting/${meeting._id}`)
-                    }}>
-                    
-Transript
+                  </div>
+                  <div style={{ padding: 10 }}>
+                    <span
+                      style={{
+                        color: "var(--primary-color)",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        navigate(`/meeting/${meeting._id}`);
+                      }}
+                    >
+                      Transript
                     </span>
-                      </div>
-                    </div>
-                )
-              })
-            }
-            </div>
-        }
-
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+       </div>
       </div>
 
       <Modal

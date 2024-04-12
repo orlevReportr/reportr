@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import CustomSideBar from "./../../components/CustomSideBar/CustomSideBar";
 import axios from "axios";
 import { Button, message } from "antd";
+
+import { MenuOutlined} from "@ant-design/icons";
+
+import "./Meeting.css";
 function Meeting() {
   const { meetingId } = useParams();
 
@@ -102,8 +106,8 @@ function Meeting() {
   useEffect(() => {
     setFrameLoading(true);
     axios
-      .post(`${import.meta.env.VITE_BACKEND}/meeting`,{
-        meetingId
+      .post(`${import.meta.env.VITE_BACKEND}/meeting`, {
+        meetingId,
       })
       .then((res) => {
         setMeeting(res.data.meeting);
@@ -116,13 +120,20 @@ function Meeting() {
         setFrameLoading(false);
       });
   }, []);
+
+  const [drawer,setDrawer]=useState(false);
   return (
     <div style={{ display: "flex", width: "100%", height: "100%" }}>
-      <CustomSideBar />
+      <CustomSideBar drawer={drawer}/>
       {frameLoading ? (
         <div>Loading</div>
       ) : (
-        <div style={{ width: "80%", padding: 20 }}>
+        <div style={{ width: "75%", padding: 20 }} onClick={()=>{
+          setDrawer(!drawer);
+        }}>
+          <div className="drawer-button">
+          <MenuOutlined onClick={() => setDrawer(!drawer)}/>
+            </div>
           <div
             style={{
               display: "flex",
@@ -135,20 +146,12 @@ function Meeting() {
           </div>
 
           <div
-            style={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "space-between",
-            }}
+           className="cards-container"
+           
           >
-            <div
-              style={{
-                background: "#141414",
-                width: "48%",
-                borderRadius: "10px",
-                padding: 5,
-              }}
-            >
+            <div className="big-card">
+              <h2>Transcript</h2>
+
               {meeting &&
                 meeting.transcript.map((sentence, index) => {
                   const isNewSpeaker =
@@ -157,7 +160,7 @@ function Meeting() {
                   if (isNewSpeaker) {
                     return (
                       <div key={index}>
-                        <h2>{sentence.speaker}</h2>
+                        <b>{sentence.speaker}:</b>
                         {sentence.words.map((word, wordIndex) => (
                           <span key={wordIndex}>{word.text} </span>
                         ))}
@@ -174,14 +177,8 @@ function Meeting() {
                   }
                 })}
             </div>
-            <div
-              style={{
-                background: "#141414",
-                width: "48%",
-                borderRadius: "10px",
-                padding: 10,
-              }}
-            >
+
+            <div className="big-card">
               <h2>Summary</h2>
               <div>{meeting && meeting.summary}</div>
             </div>

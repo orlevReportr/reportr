@@ -1,11 +1,31 @@
-.custom-sidebar{
+.custom-sidebar {
+    position: relative;
 
-display: flex;
-flex-direction: column;
-background-color: #141414;
-width: 30%;
-}
+    width: 250px;
+    height: 100vh; 
+    background-color: #141414;
+    transition: transform 0.3s ease; 
+  
+    /* Adjustments for mobile */
+    @media screen and (max-width: 768px) {
+      width: 70%;
+      transform: translateX(-100%); 
+      z-index: 999; 
+      position: fixed; 
+      top: 0; 
+      left: 0;
+      position: absolute;
+    }
+  }
+  
+  .sidebar-open {
+    transform: translateX(0); /* Show the sidebar when opened */
+  }
+  
 
+/*
+style={{width:"25%",height:"100vh",display:"flex",flexDirection:"column",alignItems:"start",position:"relative"}} 
+*/
 .menu-item{
     padding: 15px 0px;
     cursor: pointer;

@@ -1,4 +1,4 @@
-const Counter = require("../models/counterModel")
+const Counter = require("../models/CounterModel")
 const User = require("../models/UserModel")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");

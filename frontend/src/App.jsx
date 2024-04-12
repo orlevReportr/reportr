@@ -11,7 +11,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="App" style={{width:"100vw",height:"100vh"}}>
+    <div className="App" style={{}}>
    
 <Routes >
   <Route path= "/" element ={<Homepage selectedItem="dashboard"/>}  />

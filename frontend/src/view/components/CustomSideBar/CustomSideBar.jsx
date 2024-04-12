@@ -1,10 +1,10 @@
 import React from 'react'
 import "./CustomSideBar.css"
 import {useNavigate} from "react-router-dom"
-function CustomSideBar({selectedItem}) {
+function CustomSideBar({selectedItem,drawer}) {
     const navigate=useNavigate();
   return (
-    <div style={{width:"25%",height:"100vh",display:"flex",flexDirection:"column",alignItems:"start",position:"relative"}} className='custom-sidebar'>
+    <div className={`custom-sidebar ${drawer ? 'sidebar-open' : ''}`}>
         <div style={{margin:16}}>
         <img src='../assets/logo.png' width={50} style={{borderRadius:10}}>
       </img>
