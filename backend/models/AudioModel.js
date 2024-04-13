@@ -2,23 +2,25 @@ const mongoose = require("mongoose");
 
 
 
-const MeetingSchema = mongoose.Schema({
+const AudioSchema = mongoose.Schema({
     id: {
         type: Number,
         required: true,
     },
-    meetingTitle:{
-        type:String,
-        required:true,
-    },
-    filePath: {
+    userId: {
         type: Number,
         required: true,
     },
-
-    transcript: [TranscriptSchema], 
+    audioTitle:{
+        type:String,
+        required:true,
+    },
+    audioPath: {
+        type: String,
+        required: true,
+    },
 }, { timestamps: true });
 
-const Meeting = mongoose.model("Meeting", MeetingSchema);
+const Audio = mongoose.model("Audio", AudioSchema);
 
-module.exports = Meeting;
+module.exports = Audio;

@@ -4,8 +4,9 @@ import Meetings from './view/pages/Meetings/Meetings'
 import Meeting from './view/pages/Meeting/Meeting'
 import Login from './view/pages/Login/Login'
 import Register from './view/pages/Register/Register'
-import Homepage from './view/pages/Homepage/Homepage'
+
 import { Route,Routes } from 'react-router-dom';
+import Audios from './view/pages/Audios/Audios'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -14,7 +15,7 @@ function App() {
     <div className="App" style={{}}>
    
 <Routes >
-  <Route path= "/" element ={<Homepage selectedItem="dashboard"/>}  />
+  <Route path= "/" element ={<Audios selectedItem="audios"/>}  />
   <Route path= "/signup" element ={<Register/>}  />
   <Route path= "/login" element ={<Login/>}  />
   <Route path= "/meetings" element ={<Meetings selectedItem="meetings"/>}  />

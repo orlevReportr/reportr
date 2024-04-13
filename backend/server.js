@@ -61,6 +61,9 @@ app.use("/meeting", MeetingRouter)
 const UserRouter = require("./routes/UserRoutes")
 app.use("/user", UserRouter)
 
+const AudioRouter = require("./routes/AudioRoutes")
+app.use("/audio", AudioRouter)
+
 
 mongoose.connect(process.env.DBURI);
 
