@@ -43,9 +43,9 @@ function Audios({ selectedItem }) {
   };
 
   const handleAudioChange = (e) => {
-    setIsAudioError(false);
     setFile(e.target.files[0]);
     setAudioUrl(URL.createObjectURL(e.target.files[0]));
+    console.log(URL.createObjectURL(e.target.files[0]))
   };
   const [audioTitle,setAudioTitle]=useState("")
   const [file,setFile]=useState(null)
@@ -70,7 +70,8 @@ function Audios({ selectedItem }) {
     const formData=new FormData();
     formData.append("audioTitle",audioTitle)
     formData.append("userId",userData.id)
-    formData.append('file', file); 
+    formData.append('file', file);
+    console.log(file)
     axios
       .post(`${import.meta.env.VITE_BACKEND}/audio/add`,formData)
       .then((res) => {
@@ -135,7 +136,10 @@ function Audios({ selectedItem }) {
 
   return (
     <div style={{ display: "flex", width: "100%", flexDirection: "row",height:"100%" }}>
-      <CustomSideBar selectedItem="Audios" drawer={drawer} />
+      <div className="drawer-button">
+          <MenuOutlined onClick={() => setDrawer(!drawer)} />
+        </div>
+      <CustomSideBar selectedItem="audios" drawer={drawer} />
       <div
         style={{
           width: "80%",
@@ -146,9 +150,7 @@ function Audios({ selectedItem }) {
         }}
         onClick={() => setDrawer(!drawer)}
       >
-        <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)} />
-        </div>
+        
        <div>
        <h1>My Audios</h1>
         {frameLoading ? (
@@ -234,8 +236,7 @@ function Audios({ selectedItem }) {
           ></Input>
           
         </div>
-        {audioUrl&&<p>      Your browser does not support the audio element.
-</p>}
+     
         {audioUrl && (
     <audio controls>
       <source src={audioUrl} type="audio/mpeg" />

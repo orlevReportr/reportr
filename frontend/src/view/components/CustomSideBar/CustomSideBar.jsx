@@ -24,7 +24,13 @@ function CustomSideBar({selectedItem,drawer}) {
             Meetings
         </span>
       </div>
-
+      <div onClick={()=>{
+        navigate("/audios")
+      }} style={{margin:15}}>
+        <span style={{color:selectedItem=="audios"?"rgba(255, 255, 255, 0.85)":"#909090"}} className='menu-item'>
+            Audios
+        </span>
+      </div>
     </div>
   )
 }

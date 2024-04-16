@@ -144,6 +144,9 @@ function Meetings({ selectedItem }) {
   const [drawer, setDrawer] = useState(false);
   return (
     <div style={{ display: "flex", width: "100%", flexDirection: "row",height:"100%" }}>
+       <div className="drawer-button">
+          <MenuOutlined onClick={() => setDrawer(!drawer)} />
+        </div>
       <CustomSideBar selectedItem="meetings" drawer={drawer} />
       <div
         style={{
@@ -155,9 +158,7 @@ function Meetings({ selectedItem }) {
         }}
         onClick={() => setDrawer(!drawer)}
       >
-        <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)} />
-        </div>
+       
        <div>
        <h1>My Meetings</h1>
         {frameLoading ? (

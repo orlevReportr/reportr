@@ -2,10 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require("dotenv");
 const Meeting = require("./models/MeetingModel");
+const Audio = require("./models/AudioModel");
+const { getSummary } = require('./utils/getSummary');
+
 const mongoose = require("mongoose");
 const cors = require('cors');
 const path  = require('path')
-
+const fs = require('fs');
+const axios=require("axios")
 dotenv.config();
 const app = express();
 const port = 5001;
@@ -16,6 +20,45 @@ const _dirname = path.dirname("")
 const buildPath = path.join(_dirname  , "../frontend/dist");
 
 app.use(express.static(buildPath))
+
+
+app.post('/transcribe', async (req, res) => {
+  if(req.body.status==="completed"){
+    console.log(req.body.transcript_id+"completed")
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `${process.env.ASSEMBLY_API_TOKEN}`,
+    };
+    await axios.get(`https://api.assemblyai.com/v2/transcript/${req.body.transcript_id}`,{
+      headers
+    }).then(async(response)=>{
+      const audio=await Audio.findOne({botId:req.body.transcript_id})
+      audio.utterances=response.data.utterances
+      if(!audio.summary || audio.summary===""){
+
+        audio.summary=await getSummary(formatTranscript(response.data.utterances))
+      }
+      await audio.save();
+    }).catch((err)=>{
+      console.log(err)
+      console.log("catched error!")
+    })
+  }else{
+    console.log(req.body.transcript_id+"other status")
+
+  }
+});
+
+function formatTranscript(utterances) {
+  var formattedTranscript="";
+  
+  utterances.forEach((utterance)=>{
+    formattedTranscript=formattedTranscript+`Speaker ${utterance.speaker}: ${utterance.text}`+"\n"
+  });
+  
+  return formattedTranscript;
+}
 
 app.post('/transcription', async (req, res) => {
   try {
@@ -61,7 +104,7 @@ app.use("/meeting", MeetingRouter)
 const UserRouter = require("./routes/UserRoutes")
 app.use("/user", UserRouter)
 
-const AudioRouter = require("./routes/AudioRoutes")
+const AudioRouter = require("./routes/AudioRoutes");
 app.use("/audio", AudioRouter)
 
 
@@ -76,9 +119,9 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-
+/*
 app.get("/*", function(req, res){
-
+console.log("dza")
   res.sendFile(
       path.join(__dirname, "../frontend/dist/index.html"),
       function (err) {
@@ -89,7 +132,7 @@ app.get("/*", function(req, res){
       }
     );
 
-})
+})*/
 // Start the server
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

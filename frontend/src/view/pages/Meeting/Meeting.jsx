@@ -125,15 +125,16 @@ function Meeting() {
   return (
     <div style={{ display: "flex", width: "100%", height: "100%" }}>
       <CustomSideBar drawer={drawer}/>
+      <div className="drawer-button">
+          <MenuOutlined onClick={() => setDrawer(!drawer)}/>
+            </div>
       {frameLoading ? (
         <div>Loading</div>
       ) : (
         <div style={{ width: "75%", padding: 20 }} onClick={()=>{
           setDrawer(!drawer);
         }}>
-          <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)}/>
-            </div>
+          
           <div
             style={{
               display: "flex",
