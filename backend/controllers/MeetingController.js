@@ -1,6 +1,7 @@
 const Meeting = require("../models/MeetingModel");
 const Counter = require("../models/CounterModel");
 const axios = require('axios');
+const { getSummary, getFormattedSummary } = require("../utils/getSummary");
 
 const createMeeting=async(req,res)=>{
     try {
@@ -41,6 +42,7 @@ const startRecording = async (req, res) => {
         if (!meeting) {
             return res.status(400).json({ error: 'Meeting not found' });
         }
+        meeting.meetingStartTime = new Date();
 
         const bot = await recallFetch(meeting.meetingUrl);
 
@@ -67,7 +69,7 @@ const recallFetch= async (meetingUrl)=>{
       };
 
       const reqBody = {
-        bot_name: `${process.env.BOT_NAME} Notetaker`,
+        bot_name: `${process.env.BOT_NAME}`,
         meeting_url: meetingUrl,
         transcription_options: {
           provider: "default",
@@ -111,10 +113,13 @@ const stopRecording = async (req, res) => {
     }
 
     await axios.post(`https://us-west-2.recall.ai/api/v1/bot/${meeting.botId}/leave_call`, {}, { headers });
-
-    const summary = await getSummary(formatTranscript(meeting.transcript)); // Await the summary here
+    meeting.meetingEndTime = new Date();
+    const transcript=formatTranscript(meeting.transcript)
+    const summary = await getSummary(transcript);
+    const formattedSummary = await getFormattedSummary(transcript)
 
     meeting.status = 'Stopped';
+    meeting.formattedSummary = formattedSummary
     meeting.summary = summary; 
     await meeting.save();
 

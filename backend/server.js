@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require("dotenv");
+
 const Meeting = require("./models/MeetingModel");
 const Audio = require("./models/AudioModel");
-const { getSummary } = require('./utils/getSummary');
-
+const { getSummary,getFormattedSummary } = require('./utils/getSummary');
 const mongoose = require("mongoose");
 const cors = require('cors');
 const path  = require('path')
@@ -24,7 +24,7 @@ app.use(express.static(buildPath))
 
 app.post('/transcribe', async (req, res) => {
   if(req.body.status==="completed"){
-    console.log(req.body.transcript_id+"completed")
+
     const headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -34,10 +34,18 @@ app.post('/transcribe', async (req, res) => {
       headers
     }).then(async(response)=>{
       const audio=await Audio.findOne({botId:req.body.transcript_id})
+      if(audio.status==="processing"){
+        console.log("audio already processing")
+        return;
+      }
+      audio.status="processing";
+      await audio.save();
       audio.utterances=response.data.utterances
       if(!audio.summary || audio.summary===""){
-
+        console.log("started transcripting")
         audio.summary=await getSummary(formatTranscript(response.data.utterances))
+        audio.formattedSummary=await getFormattedSummary(formatTranscript(response.data.utterances));
+
       }
       await audio.save();
     }).catch((err)=>{
@@ -119,9 +127,8 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-/*
+
 app.get("/*", function(req, res){
-console.log("dza")
   res.sendFile(
       path.join(__dirname, "../frontend/dist/index.html"),
       function (err) {
@@ -132,7 +139,7 @@ console.log("dza")
       }
     );
 
-})*/
+})
 // Start the server
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

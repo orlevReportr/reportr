@@ -70,8 +70,14 @@ const MeetingSchema = mongoose.Schema({
         type:String,
     
     },
-    formatedSummary:{
+    formattedSummary:{
         type:String
+    },
+    meetingStartTime:{
+        type:Date
+    },
+    meetingEndTime:{
+        type:Date
     },
     transcript: [TranscriptSchema], 
 }, { timestamps: true });

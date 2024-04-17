@@ -1,0 +1,31 @@
+.summary-container{
+    cursor: pointer;
+    padding: 10px;
+}
+
+h5{
+    margin: 0;
+}
+.left{
+    border-top-left-radius: 5px;
+    border-end-start-radius: 5px;
+    border-left: solid 1px grey;
+    border-right: solid 1px grey;
+
+    border-top: solid 1px grey;
+    border-bottom: solid 1px grey;
+}
+
+.right{
+    border-top-right-radius: 5px;
+    border-end-end-radius: 5px;
+
+    border-right: solid 1px grey;
+    border-top: solid 1px grey;
+    border-bottom: solid 1px grey;
+}
+
+.selected-summary{
+    background-color: #a6a6a6;
+    color:white
+}

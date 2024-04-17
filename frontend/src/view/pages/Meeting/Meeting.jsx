@@ -7,6 +7,7 @@ import { Button, message } from "antd";
 import { MenuOutlined} from "@ant-design/icons";
 
 import "./Meeting.css";
+import Markdown from "react-markdown";
 function Meeting() {
   const { meetingId } = useParams();
 
@@ -120,6 +121,7 @@ function Meeting() {
         setFrameLoading(false);
       });
   }, []);
+  const [summary,setSummary]=useState(true)
 
   const [drawer,setDrawer]=useState(false);
   return (
@@ -146,44 +148,59 @@ function Meeting() {
             {meeting && getStatusChangeButton(meeting.status)}
           </div>
 
-          <div
-           className="cards-container"
-           
-          >
-            <div className="big-card">
-              <h2>Transcript</h2>
-
-              {meeting &&
-                meeting.transcript.map((sentence, index) => {
-                  const isNewSpeaker =
-                    index === 0 ||
-                    sentence.speaker !== meeting.transcript[index - 1].speaker;
-                  if (isNewSpeaker) {
-                    return (
-                      <div key={index}>
-                        <b>{sentence.speaker}:</b>
-                        {sentence.words.map((word, wordIndex) => (
-                          <span key={wordIndex}>{word.text} </span>
-                        ))}
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <span key={index}>
-                        {sentence.words.map((word, wordIndex) => (
-                          <span key={wordIndex}>{word.text} </span>
-                        ))}
-                      </span>
-                    );
-                  }
-                })}
-            </div>
-
-            <div className="big-card">
-              <h2>Summary</h2>
-              <div>{meeting && meeting.summary}</div>
-            </div>
-          </div>
+          {
+            meeting && meeting.transcript.length!==0?<div
+            className="cards-container"
+            
+           >
+             <div className="big-card">
+               <h2>Transcript</h2>
+ 
+               {meeting &&
+                 meeting.transcript.map((sentence, index) => {
+                   const isNewSpeaker =
+                     index === 0 ||
+                     sentence.speaker !== meeting.transcript[index - 1].speaker;
+                   if (isNewSpeaker) {
+                     return (
+                       <div key={index}>
+                         <b>{sentence.speaker}:</b>
+                         {sentence.words.map((word, wordIndex) => (
+                           <span key={wordIndex}>{word.text} </span>
+                         ))}
+                       </div>
+                     );
+                   } else {
+                     return (
+                       <span key={index}>
+                         {sentence.words.map((word, wordIndex) => (
+                           <span key={wordIndex}>{word.text} </span>
+                         ))}
+                       </span>
+                     );
+                   }
+                 })}
+             </div>
+ 
+             <div className="big-card">
+               <div style={{ display: "flex",marginBottom:10 }}>
+                 <div className={`summary-container left ${summary&& "selected-summary"}`} onClick={()=>{
+                   setSummary(!summary)
+                 }}>
+                   <h5>Summary</h5>
+                 </div>
+                 <div className={`summary-container right ${!summary&& "selected-summary"}`} onClick={()=>{
+                   setSummary(!summary)
+                 }}>
+                   <h5>Formatted Summary</h5>
+                 </div>
+               </div>
+               {summary&&<div>{meeting && meeting.summary}</div>}
+ 
+               {!summary&&<Markdown>{meeting && meeting.formattedSummary}</Markdown>}
+             </div>
+           </div>:<span>Meeting didn't start yet</span>
+          }
         </div>
       )}
 

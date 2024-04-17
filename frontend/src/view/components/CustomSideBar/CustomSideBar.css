@@ -1,13 +1,12 @@
 .custom-sidebar {
-    position: relative;
+  position: relative;
+  width: 250px;
+  height: 100vh; 
+  background-color: white;
+  transition: transform 0.3s ease, background-color 0.3s ease; /* Add background-color transition */
 
-    width: 250px;
-    height: 100vh; 
-    background-color: #141414;
-    transition: transform 0.3s ease; 
-  
-    /* Adjustments for mobile */
-    @media screen and (max-width: 768px) {
+  /* Adjustments for mobile */
+  @media screen and (max-width: 768px) {
       width: 70%;
       transform: translateX(-100%); 
       z-index: 999; 
@@ -15,22 +14,23 @@
       top: 0; 
       left: 0;
       position: absolute;
-    }
   }
-  
-  .sidebar-open {
-    transform: translateX(0); /* Show the sidebar when opened */
-  }
-  
-
-/*
-style={{width:"25%",height:"100vh",display:"flex",flexDirection:"column",alignItems:"start",position:"relative"}} 
-*/
-.menu-item{
-    padding: 15px 0px;
-    cursor: pointer;
 }
 
-.menu-item:hover{
-    color: rgba(255, 255, 255, 0.85) !important;
+.sidebar-open {
+  transform: translateX(0); /* Show the sidebar when opened */
+}
+
+.menu-item-container {
+  padding: 10px;
+  border-radius: 10px;
+  color: #566a7f;
+  cursor: pointer;
+  margin: 5px;
+  transition: background-color 0.3s ease; /* Add background-color transition */
+}
+
+.selected {
+  color: #1677FF;
+  background-color: #d0e4ff;
 }

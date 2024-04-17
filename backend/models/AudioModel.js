@@ -52,7 +52,7 @@ const AudioSchema = mongoose.Schema({
     summary:{
         type:String,
     },
-    formatedSummary:{
+    formattedSummary:{
         type:String
     }
 }, { timestamps: true });

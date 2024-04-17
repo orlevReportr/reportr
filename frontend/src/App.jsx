@@ -15,7 +15,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="App" style={{}}>
+    <div className="App">
    
 <Routes >
 <Route path= "/" element ={<Dashboard/>}  />

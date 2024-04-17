@@ -2,14 +2,19 @@
 .big-card{
       padding:20px;
       width: 45%;
-      background-color: #141414;
+      background-color: white;
       border-radius: 10px;
+      background-clip: padding-box;
+        box-shadow: 0 2px 6px 0 rgba(67,89,113,.12);
 }
 
 .cards-container{
     display: flex;
     justify-content: space-between;
     width: 100%;
+    
+        
+    
 }
 
 .drawer-button{

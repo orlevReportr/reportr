@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import CustomSideBar from "./../../components/CustomSideBar/CustomSideBar";
 import axios from "axios";
-import {  message } from "antd";
+import { message } from "antd";
 
-import { MenuOutlined} from "@ant-design/icons";
-
+import { MenuOutlined } from "@ant-design/icons";
+import ReactHtmlParser from "react-html-parser"; // Import the library
+import Markdown from "react-markdown";
 import "./Audio.css";
 function Audio() {
   const { audioId } = useParams();
@@ -14,8 +15,6 @@ function Audio() {
   const [buttonLoading, setButtonLoading] = useState();
   const [audio, setAudio] = useState();
   const [messageApi, contextHolder] = message.useMessage();
-
-
 
   const showtoast = (type, message) => {
     messageApi.open({
@@ -48,20 +47,24 @@ function Audio() {
       });
   }, []);
 
-  const [drawer,setDrawer]=useState(false);
+  const [summary,setSummary]=useState(true)
+
+  const [drawer, setDrawer] = useState(false);
   return (
     <div style={{ display: "flex", width: "100%", height: "100%" }}>
-        <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)}/>
-            </div>
-      <CustomSideBar drawer={drawer}/>
+      <div className="drawer-button">
+        <MenuOutlined onClick={() => setDrawer(!drawer)} />
+      </div>
+      <CustomSideBar drawer={drawer} />
       {frameLoading ? (
         <div>Loading</div>
       ) : (
-        <div style={{ width: "75%", padding: 20 }} onClick={()=>{
-          setDrawer(!drawer);
-        }}>
-          
+        <div
+          style={{ width: "75%", padding: 20 }}
+          onClick={() => {
+            setDrawer(!drawer);
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -72,51 +75,36 @@ function Audio() {
             <h1>Audio </h1>
           </div>
 
-          <div
-           className="cards-container"
-           
-          >
+          <div className="cards-container">
             <div className="big-card">
               <h2>Transcript</h2>
-{
-    audio&& audio.utterances.map((utterance,index)=>{
-        return (<div key={index}>
-            <b>Speaker {utterance.speaker}:</b>
-            <p>
-            {utterance.text}
-            </p>
-          </div>)
-    })
-}
-              {/* {Audio &&
-                Audio.transcript.map((sentence, index) => {
-                  const isNewSpeaker =
-                    index === 0 ||
-                    sentence.speaker !== Audio.transcript[index - 1].speaker;
-                  if (isNewSpeaker) {
-                    return (
-                      <div key={index}>
-                        <b>{sentence.speaker}:</b>
-                        {sentence.words.map((word, wordIndex) => (
-                          <span key={wordIndex}>{word.text} </span>
-                        ))}
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <span key={index}>
-                        {sentence.words.map((word, wordIndex) => (
-                          <span key={wordIndex}>{word.text} </span>
-                        ))}
-                      </span>
-                    );
-                  }
-                })} */}
+              {audio &&
+                audio.utterances.map((utterance, index) => {
+                  return (
+                    <div key={index}>
+                      <b>Speaker {utterance.speaker}:</b>
+                      <p>{utterance.text}</p>
+                    </div>
+                  );
+                })}
             </div>
 
             <div className="big-card">
-              <h2>Summary</h2>
-              <div>{audio && audio.summary}</div>
+              <div style={{ display: "flex",marginBottom:10 }}>
+                <div className={`summary-container left ${summary&& "selected-summary"}`} onClick={()=>{
+                  setSummary(!summary)
+                }}>
+                  <h5>Summary</h5>
+                </div>
+                <div className={`summary-container right ${!summary&& "selected-summary"}`} onClick={()=>{
+                  setSummary(!summary)
+                }}>
+                  <h5>Formatted Summary</h5>
+                </div>
+              </div>
+              {summary&&<div>{audio && audio.summary}</div>}
+
+              {!summary&&<Markdown>{audio && audio.formattedSummary}</Markdown>}
             </div>
           </div>
         </div>
