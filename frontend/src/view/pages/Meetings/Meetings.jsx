@@ -201,7 +201,7 @@ function Meetings({ selectedItem }) {
                       {meeting.status}
                     </span>
                   </div>
-                  <div style={{ padding: 10 }}>
+                  <div style={{ padding: 10,display:"flex",justifyContent:"space-around" }}>
                     <span
                       style={{
                         color: "var(--primary-color)",
@@ -213,6 +213,18 @@ function Meetings({ selectedItem }) {
                       }}
                     >
                       Transript
+                    </span>
+                    <span
+                      style={{
+                        color: "var(--primary-color)",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        navigate(`/chat`,{ state: { transcript:meeting.formattedTranscript } });
+                      }}
+                    >
+                      Chat
                     </span>
                   </div>
                 </div>

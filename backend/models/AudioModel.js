@@ -49,6 +49,9 @@ const AudioSchema = mongoose.Schema({
         type:String,
     },
     utterances:[WordsSchema],
+    formattedTranscript:{
+        type:String,
+    },
     summary:{
         type:String,
     },

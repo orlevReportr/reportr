@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Login.css"
 function Login() {
   const [buttonLoading, setButtonLoading] = useState();
   const [email, setEmail] = useState();
@@ -63,17 +64,10 @@ function Login() {
       }}
     >
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100%",
-          width: "20%",
-        }}
+        className="login-container"
       >
         <div>
-          <img src="../assets/logo.png" height={80}></img>
+          <img src="../assets/logo.png"  width={"100%"}></img>
         </div>
         <span>Welcome back!</span>
         <br></br>

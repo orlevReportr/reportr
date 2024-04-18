@@ -80,6 +80,9 @@ const MeetingSchema = mongoose.Schema({
         type:Date
     },
     transcript: [TranscriptSchema], 
+    formattedTranscript:{
+        type:String,
+    },
 }, { timestamps: true });
 
 const Meeting = mongoose.model("Meeting", MeetingSchema);

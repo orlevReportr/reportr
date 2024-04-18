@@ -182,7 +182,7 @@ function Audios({ selectedItem }) {
                     </span>
                   </div>
                  
-                  <div style={{ padding: 10 }}>
+                  <div style={{ padding: 10 ,display:"flex",justifyContent:"space-around"}}>
                     <span
                       style={{
                         color: "var(--primary-color)",
@@ -194,6 +194,18 @@ function Audios({ selectedItem }) {
                       }}
                     >
                       Transript
+                    </span>
+                    <span
+                      style={{
+                        color: "var(--primary-color)",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        navigate(`/chat`,{ state: { transcript:audio.formattedTranscript } });
+                      }}
+                    >
+                      Chat
                     </span>
                   </div>
                 </div>
