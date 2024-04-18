@@ -141,6 +141,12 @@ function Meetings({ selectedItem }) {
     }
   };
 
+  useEffect(() => {
+    if(!userData){
+      navigate("/login")
+    }
+  },[])
+
   const [drawer, setDrawer] = useState(false);
   return (
     <div style={{ display: "flex", width: "100%", flexDirection: "row",height:"100%" }}>

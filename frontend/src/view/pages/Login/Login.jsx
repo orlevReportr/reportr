@@ -75,16 +75,14 @@ function Login() {
         <div>
           <img src="../assets/logo.png" height={80}></img>
         </div>
-        <h1 style={{ textAlign: "center" }}>Meeting Master</h1>
         <span>Welcome back!</span>
         <br></br>
 
         <div style={{ width: "100%" }}>
           <label>Email:</label>
           <Input
-            placeholder="default size"
+            placeholder="Email"
             prefix={<UserOutlined />}
-            style={{ background: "transparent", color: "white" }}
             onChange={(e) => {
               setEmail(e.target.value);
             }}
@@ -94,7 +92,7 @@ function Login() {
         <div style={{ width: "100%" }}>
           <label>Password:</label>
           <Input.Password
-            placeholder="password"
+            placeholder="Password"
             prefix={<LockOutlined />}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -131,7 +129,7 @@ function Login() {
           <span style={{ color: "grey" }}>
             No account?{" "}
             <span
-              style={{ color: "white", cursor: "pointer" }}
+              style={{ color: "#1677FF", cursor: "pointer" }}
               onClick={() => {
                 navigate("/signup");
               }}

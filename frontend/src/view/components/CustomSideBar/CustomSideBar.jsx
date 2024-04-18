@@ -9,7 +9,7 @@ function CustomSideBar({selectedItem,drawer}) {
   return (
     <div className={`custom-sidebar ${drawer ? 'sidebar-open' : ''}`}>
         <div style={{margin:16}}>
-        <img src='../assets/fulllogo.png' width={150} style={{borderRadius:10}}>
+        <img src='../assets/logo.png' width={150} style={{borderRadius:10}}>
       </img>
         </div>
       <br></br>

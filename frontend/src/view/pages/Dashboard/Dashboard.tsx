@@ -5,12 +5,17 @@ import "./Dashboard.css"
 import { Card, Statistic } from "antd";
 import { UserData } from './../../../utils/UserData';
 import axios from "axios";
+import {useNavigate} from "react-router-dom"
 function Dashboard() {
   const [drawer, setDrawer] = useState(false);
   const [loading,setLoading]=useState(false);
   const [stats,setStats]=useState([]);
+  const navigate=useNavigate();
 const userData=UserData();
 useEffect(()=>{
+    if(!userData){
+      navigate("/login")
+    }
   setLoading(true);
   axios.post(`${import.meta.env.VITE_BACKEND}/user/stats`,{
     userId:userData.id
