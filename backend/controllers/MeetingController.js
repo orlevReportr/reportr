@@ -67,7 +67,7 @@ const recallFetch= async (meetingUrl)=>{
         'Content-Type': 'application/json',
         'Authorization':`Token ${process.env.RECALL_API_TOKEN}`
       };
-
+console.log(`${process.env.PUBLIC_URL}/transcription`)
       const reqBody = {
         bot_name: `${process.env.BOT_NAME}`,
         meeting_url: meetingUrl,
@@ -115,6 +115,7 @@ const stopRecording = async (req, res) => {
     await axios.post(`https://us-west-2.recall.ai/api/v1/bot/${meeting.botId}/leave_call`, {}, { headers });
     meeting.meetingEndTime = new Date();
     const transcript=formatTranscript(meeting.transcript)
+    meeting.formattedTranscript=transcript;
     const summary = await getSummary(transcript);
     const formattedSummary = await getFormattedSummary(transcript)
 

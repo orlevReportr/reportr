@@ -10,6 +10,7 @@ import Register from './view/pages/Register/Register'
 import { Route,Routes } from 'react-router-dom';
 import Audios from './view/pages/Audios/Audios'
 import Dashboard from './view/pages/Dashboard/Dashboard'
+import Chatting from './view/pages/Chatting/Chatting'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -26,6 +27,7 @@ function App() {
   <Route path= "/meeting/:meetingId" element ={<Meeting/>}  />
   <Route path= "/audios" element ={<Audios selectedItem="audios"/>}  />
   <Route path= "/audio/:audioId" element ={<Audio/>}  />
+  <Route path= "/chat" element ={<Chatting/>}  />
 
 
 

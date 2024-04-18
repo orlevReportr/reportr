@@ -43,8 +43,10 @@ app.post('/transcribe', async (req, res) => {
       audio.utterances=response.data.utterances
       if(!audio.summary || audio.summary===""){
         console.log("started transcripting")
-        audio.summary=await getSummary(formatTranscript(response.data.utterances))
-        audio.formattedSummary=await getFormattedSummary(formatTranscript(response.data.utterances));
+        const transcript=formatTranscript(response.data.utterances)
+        audio.formattedTranscript=transcript;
+        audio.summary=await getSummary(transcript)
+        audio.formattedSummary=await getFormattedSummary(transcript);
 
       }
       await audio.save();
