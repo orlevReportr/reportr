@@ -89,3 +89,7 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.ant-popover-inner {
+  padding: 5px !important;
+}

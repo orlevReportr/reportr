@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import Meetings from "./view/pages/Meetings/Meetings";
-import Meeting from "./view/pages/Meeting/Meeting";
+import ClientRecords from "./view/pages/ClientRecords/ClientRecords";
 import Audio from "./view/pages/Audio/Audio";
 
 import Login from "./view/pages/Login/Login";
@@ -11,7 +10,8 @@ import { Route, Routes } from "react-router-dom";
 import Audios from "./view/pages/Audios/Audios";
 import Dashboard from "./view/pages/Dashboard/Dashboard";
 import Chatting from "./view/pages/Chatting/Chatting";
-import ClientRecords from "./view/pages/ClientRecords/ClientRecords";
+import Meeting from "./view/pages/Meeting/Meeting";
+import Meetings from "./view/pages/Meetings/Meetings";
 
 function App() {
   return (
@@ -19,14 +19,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/client-records" element={<ClientRecords />} />
+        <Route path="/customize" element={<ClientRecords />} />
+        <Route path="/consult" element={<ClientRecords />} />
+        <Route path="/settings" element={<ClientRecords />} />
 
         <Route path="/signup" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/meetings"
-          element={<Meetings selectedItem="meetings" />}
-        />
-        <Route path="/meeting/:meetingId" element={<Meeting />} />
+        <Route path="/meetings" element={<Meetings />} />
+        <Route path="/clientrecord/:clientRecordId" element={<Meeting />} />
         <Route path="/audios" element={<Audios selectedItem="audios" />} />
         <Route path="/audio/:audioId" element={<Audio />} />
         <Route path="/chat" element={<Chatting />} />

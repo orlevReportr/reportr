@@ -4,28 +4,28 @@ import CustomSideBar from "./../../components/CustomSideBar/CustomSideBar";
 import axios from "axios";
 import { Button, message } from "antd";
 
-import { MenuOutlined} from "@ant-design/icons";
+import { MenuOutlined } from "@ant-design/icons";
 
 import "./Meeting.css";
 import Markdown from "react-markdown";
 function Meeting() {
-  const { meetingId } = useParams();
+  const { clientRecordId } = useParams();
 
   const [frameLoading, setFrameLoading] = useState();
   const [buttonLoading, setButtonLoading] = useState();
-  const [meeting, setMeeting] = useState();
+  const [clientRecord, setClientRecord] = useState();
   const [messageApi, contextHolder] = message.useMessage();
 
   const handleStatusButton = () => {
-    if (meeting.status === "Started") {
+    if (clientRecord.status === "Started") {
       setButtonLoading(true);
       axios
-        .post(`${import.meta.env.VITE_BACKEND}/meeting/stop-recording`, {
-          meetingId: meeting.id,
+        .post(`${import.meta.env.VITE_BACKEND}/clientRecord/stop-recording`, {
+          clientRecordId: clientRecord.id,
         })
         .then((res) => {
-          setMeeting((prevMeeting) => {
-            return { ...prevMeeting, status: "Stopped" };
+          setClientRecord((prevClientRecord) => {
+            return { ...prevClientRecord, status: "Stopped" };
           });
 
           showtoast("success", "Stopped recording");
@@ -36,16 +36,19 @@ function Meeting() {
         .finally(() => {
           setButtonLoading(false);
         });
-    } else if (meeting.status === "Waiting" || meeting.status === "Stopped") {
+    } else if (
+      clientRecord.status === "Waiting" ||
+      clientRecord.status === "Stopped"
+    ) {
       setButtonLoading(true);
       axios
-        .post(`${import.meta.env.VITE_BACKEND}/meeting/start-recording`, {
-          meetingId: meeting.id,
+        .post(`${import.meta.env.VITE_BACKEND}/clientRecord/start-recording`, {
+          clientRecordId: clientRecord.id,
         })
         .then((res) => {
           showtoast("success", "Started recording");
-          setMeeting((prevMeeting) => {
-            return { ...prevMeeting, status: "Started" };
+          setClientRecord((prevClientRecord) => {
+            return { ...prevClientRecord, status: "Started" };
           });
         })
         .catch((err) => {
@@ -107,12 +110,12 @@ function Meeting() {
   useEffect(() => {
     setFrameLoading(true);
     axios
-      .post(`${import.meta.env.VITE_BACKEND}/meeting`, {
-        meetingId,
+      .post(`${import.meta.env.VITE_BACKEND}/clientRecord`, {
+        clientRecordId,
       })
       .then((res) => {
-        setMeeting(res.data.meeting);
-        console.log(res.data.meeting.status);
+        setClientRecord(res.data.clientRecord);
+        console.log(res.data.clientRecord.status);
       })
       .catch((err) => {
         console.log(err);
@@ -121,22 +124,24 @@ function Meeting() {
         setFrameLoading(false);
       });
   }, []);
-  const [summary,setSummary]=useState(true)
+  const [summary, setSummary] = useState(true);
 
-  const [drawer,setDrawer]=useState(false);
+  const [drawer, setDrawer] = useState(false);
   return (
     <div style={{ display: "flex", width: "100%", height: "100%" }}>
-      <CustomSideBar drawer={drawer}/>
+      <CustomSideBar drawer={drawer} />
       <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)}/>
-            </div>
+        <MenuOutlined onClick={() => setDrawer(!drawer)} />
+      </div>
       {frameLoading ? (
         <div>Loading</div>
       ) : (
-        <div style={{ width: "75%", padding: 20 }} onClick={()=>{
-          setDrawer(!drawer);
-        }}>
-          
+        <div
+          style={{ width: "75%", padding: 20 }}
+          onClick={() => {
+            setDrawer(!drawer);
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -144,63 +149,77 @@ function Meeting() {
               justifyContent: "space-between",
             }}
           >
-            <h1>Meeting </h1>
-            {meeting && getStatusChangeButton(meeting.status)}
+            <h1>ClientRecord </h1>
+            {clientRecord && getStatusChangeButton(clientRecord.status)}
           </div>
 
-          {
-            meeting && meeting.transcript.length!==0?<div
-            className="cards-container"
-            
-           >
-             <div className="big-card">
-               <h2>Transcript</h2>
- 
-               {meeting &&
-                 meeting.transcript.map((sentence, index) => {
-                   const isNewSpeaker =
-                     index === 0 ||
-                     sentence.speaker !== meeting.transcript[index - 1].speaker;
-                   if (isNewSpeaker) {
-                     return (
-                       <div key={index}>
-                         <b>{sentence.speaker}:</b>
-                         {sentence.words.map((word, wordIndex) => (
-                           <span key={wordIndex}>{word.text} </span>
-                         ))}
-                       </div>
-                     );
-                   } else {
-                     return (
-                       <span key={index}>
-                         {sentence.words.map((word, wordIndex) => (
-                           <span key={wordIndex}>{word.text} </span>
-                         ))}
-                       </span>
-                     );
-                   }
-                 })}
-             </div>
- 
-             <div className="big-card">
-               <div style={{ display: "flex",marginBottom:10 }}>
-                 <div className={`summary-container left ${summary&& "selected-summary"}`} onClick={()=>{
-                   setSummary(!summary)
-                 }}>
-                   <h5>Summary</h5>
-                 </div>
-                 <div className={`summary-container right ${!summary&& "selected-summary"}`} onClick={()=>{
-                   setSummary(!summary)
-                 }}>
-                   <h5>Formatted Summary</h5>
-                 </div>
-               </div>
-               {summary&&<div>{meeting && meeting.summary}</div>}
- 
-               {!summary&&<Markdown>{meeting && meeting.formattedSummary}</Markdown>}
-             </div>
-           </div>:<span>Meeting didn't start yet</span>
-          }
+          {clientRecord && clientRecord.transcript.length !== 0 ? (
+            <div className="cards-container">
+              <div className="big-card">
+                <h2>Transcript</h2>
+
+                {clientRecord &&
+                  clientRecord.transcript.map((sentence, index) => {
+                    const isNewSpeaker =
+                      index === 0 ||
+                      sentence.speaker !==
+                        clientRecord.transcript[index - 1].speaker;
+                    if (isNewSpeaker) {
+                      return (
+                        <div key={index}>
+                          <b>{sentence.speaker}:</b>
+                          {sentence.words.map((word, wordIndex) => (
+                            <span key={wordIndex}>{word.text} </span>
+                          ))}
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <span key={index}>
+                          {sentence.words.map((word, wordIndex) => (
+                            <span key={wordIndex}>{word.text} </span>
+                          ))}
+                        </span>
+                      );
+                    }
+                  })}
+              </div>
+
+              <div className="big-card">
+                <div style={{ display: "flex", marginBottom: 10 }}>
+                  <div
+                    className={`summary-container left ${
+                      summary && "selected-summary"
+                    }`}
+                    onClick={() => {
+                      setSummary(!summary);
+                    }}
+                  >
+                    <h5>Summary</h5>
+                  </div>
+                  <div
+                    className={`summary-container right ${
+                      !summary && "selected-summary"
+                    }`}
+                    onClick={() => {
+                      setSummary(!summary);
+                    }}
+                  >
+                    <h5>Formatted Summary</h5>
+                  </div>
+                </div>
+                {summary && <div>{clientRecord && clientRecord.summary}</div>}
+
+                {!summary && (
+                  <Markdown>
+                    {clientRecord && clientRecord.formattedSummary}
+                  </Markdown>
+                )}
+              </div>
+            </div>
+          ) : (
+            <span>ClientRecord didn't start yet</span>
+          )}
         </div>
       )}
 

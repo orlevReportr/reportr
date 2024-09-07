@@ -1,41 +1,62 @@
-import React from 'react'
-import "./CustomSideBar.css"
-import {useNavigate} from "react-router-dom"
+import React from "react";
+import "./CustomSideBar.css";
+import { useNavigate } from "react-router-dom";
 
-import { AudioOutlined,WechatOutlined,HomeOutlined} from "@ant-design/icons";
+import { AudioOutlined, WechatOutlined, HomeOutlined } from "@ant-design/icons";
 
-function CustomSideBar({selectedItem,drawer}) {
-    const navigate=useNavigate();
+function CustomSideBar({ selectedItem, drawer }) {
+  const navigate = useNavigate();
   return (
-    <div className={`custom-sidebar ${drawer ? 'sidebar-open' : ''}`}>
-        <div style={{margin:16}}>
-        <img src='../assets/logo.png' width={150} style={{borderRadius:10}}>
-      </img>
-        </div>
+    <div className={`custom-sidebar ${drawer ? "sidebar-open" : ""}`}>
+      <div style={{ margin: 16 }}>
+        <img
+          src="../assets/logo.png"
+          width={150}
+          style={{ borderRadius: 10 }}
+        ></img>
+      </div>
       <br></br>
-      <div onClick={()=>{
-        navigate("/")
-      }} className={`menu-item-container ${selectedItem === "dashboard" ? 'selected' : ''}`}>
+      <div
+        onClick={() => {
+          navigate("/");
+        }}
+        className={`menu-item-container ${
+          selectedItem === "dashboard" ? "selected" : ""
+        }`}
+      >
         <span>
-        <HomeOutlined style={{marginRight:10}} />Dashboard
+          <HomeOutlined style={{ marginRight: 10 }} />
+          Dashboard
         </span>
       </div>
-      <div onClick={()=>{
-        navigate("/meetings")
-      }} className={`menu-item-container ${selectedItem === "meetings" ? 'selected' : ''}`}>
+      <div
+        onClick={() => {
+          navigate("/clientRecords");
+        }}
+        className={`menu-item-container ${
+          selectedItem === "clientRecords" ? "selected" : ""
+        }`}
+      >
         <span>
-        <WechatOutlined style={{marginRight:10}}/>Online Meetings
+          <WechatOutlined style={{ marginRight: 10 }} />
+          Online ClientRecords
         </span>
       </div>
-      <div onClick={()=>{
-        navigate("/audios")
-      }} className={`menu-item-container ${selectedItem === "audios" ? 'selected' : ''}`}>
+      <div
+        onClick={() => {
+          navigate("/audios");
+        }}
+        className={`menu-item-container ${
+          selectedItem === "audios" ? "selected" : ""
+        }`}
+      >
         <span>
-        <AudioOutlined style={{marginRight:10}}/>Audios Meetings
+          <AudioOutlined style={{ marginRight: 10 }} />
+          Audios ClientRecords
         </span>
       </div>
     </div>
-  )
+  );
 }
 
-export default CustomSideBar
+export default CustomSideBar;

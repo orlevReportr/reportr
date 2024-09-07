@@ -24,7 +24,7 @@ function TopNavBar() {
           navigate("/consult");
         }}
       >
-        <div className="cursor-pointer hover:bg-[#cbcbcb] hover:text-opacity-70 h-full rounded p-[5px]">
+        <div className="duration-100 cursor-pointer hover:bg-[#dcdcdc] hover:text-opacity-70 h-full rounded p-[5px]">
           <span className="text-[14px]">Consult</span>
         </div>
       </div>
@@ -37,7 +37,7 @@ function TopNavBar() {
             activeTab === "/client-records" ? "2px solid #383838" : "none",
         }}
       >
-        <div className="cursor-pointer hover:bg-[#cbcbcb] hover:text-opacity-70 h-full rounded p-[5px]">
+        <div className="duration-100 cursor-pointer hover:bg-[#dcdcdc] hover:text-opacity-70 h-full rounded p-[5px]">
           <span className="text-[14px]">Client Records</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ function TopNavBar() {
             activeTab === "/customize" ? "2px solid #383838" : "none",
         }}
       >
-        <div className="cursor-pointer hover:bg-[#cbcbcb] hover:text-opacity-70 h-full rounded p-[5px]">
+        <div className="duration-100 cursor-pointer hover:bg-[#dcdcdc] hover:text-opacity-70 h-full rounded p-[5px]">
           <span className="text-[14px]">Customise</span>
         </div>
       </div>
@@ -63,7 +63,7 @@ function TopNavBar() {
             activeTab === "/settings" ? "2px solid #383838" : "none",
         }}
       >
-        <div className="cursor-pointer hover:bg-[#cbcbcb] hover:text-opacity-70 h-full rounded p-[5px]">
+        <div className="duration-100 cursor-pointer hover:bg-[#dcdcdc] hover:text-opacity-70 h-full rounded p-[5px]">
           <span className="text-[14px]">Settings</span>{" "}
         </div>
       </div>

@@ -45,10 +45,10 @@ function Audios({ selectedItem }) {
   const handleAudioChange = (e) => {
     setFile(e.target.files[0]);
     setAudioUrl(URL.createObjectURL(e.target.files[0]));
-    console.log(URL.createObjectURL(e.target.files[0]))
+    console.log(URL.createObjectURL(e.target.files[0]));
   };
-  const [audioTitle,setAudioTitle]=useState("")
-  const [file,setFile]=useState(null)
+  const [audioTitle, setAudioTitle] = useState("");
+  const [file, setFile] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
 
   const [messageApi, contextHolder] = message.useMessage();
@@ -67,13 +67,13 @@ function Audios({ selectedItem }) {
   };
   const handleCreateAudio = () => {
     setButtonLoading(true);
-    const formData=new FormData();
-    formData.append("audioTitle",audioTitle)
-    formData.append("userId",userData.id)
-    formData.append('file', file);
-    console.log(file)
+    const formData = new FormData();
+    formData.append("audioTitle", audioTitle);
+    formData.append("userId", userData.id);
+    formData.append("file", file);
+    console.log(file);
     axios
-      .post(`${import.meta.env.VITE_BACKEND}/audio/add`,formData)
+      .post(`${import.meta.env.VITE_BACKEND}/audio/add`, formData)
       .then((res) => {
         setIsModalOpen(false);
 
@@ -96,8 +96,8 @@ function Audios({ selectedItem }) {
   const [audios, setAudios] = useState([]);
 
   useEffect(() => {
-    if(!userData){
-      navigate("/login")
+    if (!userData) {
+      navigate("/login");
     }
     setFrameLoading(true);
     axios
@@ -133,12 +133,18 @@ function Audios({ selectedItem }) {
 
   const [drawer, setDrawer] = useState(false);
 
-
   return (
-    <div style={{ display: "flex", width: "100%", flexDirection: "row",height:"100%" }}>
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        flexDirection: "row",
+        height: "100%",
+      }}
+    >
       <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)} />
-        </div>
+        <MenuOutlined onClick={() => setDrawer(!drawer)} />
+      </div>
       <CustomSideBar selectedItem="audios" drawer={drawer} />
       <div
         style={{
@@ -150,70 +156,82 @@ function Audios({ selectedItem }) {
         }}
         onClick={() => setDrawer(!drawer)}
       >
-        
-       <div>
-       <h1>My Audios</h1>
-        {frameLoading ? (
-          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-        ) :!audios || audios.length === 0 ? (
-          <span>No Audios</span>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "start",
-              alignContent: "center",
-            }}
-          >
-            {audios &&audios.map((audio) => {
-              return (
-                <div className="meeting-container">
-                  <div style={{ padding: 10, borderBottom: "1px grey solid" }}>
-                    <span>{audio.audioTitle}</span>
-                  </div>
+        <div>
+          <h1>My Audios</h1>
+          {frameLoading ? (
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
+            />
+          ) : !audios || audios.length === 0 ? (
+            <span>No Audios</span>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 10,
+                alignItems: "center",
+                justifyContent: "start",
+                alignContent: "center",
+              }}
+            >
+              {audios &&
+                audios.map((audio) => {
+                  return (
+                    <div className="clientRecord-container">
+                      <div
+                        style={{ padding: 10, borderBottom: "1px grey solid" }}
+                      >
+                        <span>{audio.audioTitle}</span>
+                      </div>
 
-                  <div style={{ padding: 10 }}>
-                    <span>
-                      <CalendarOutlined style={{ marginRight: 10 }} />
-                      {formatDate(audio.createdAt)}
-                    </span>
-                  </div>
-                 
-                  <div style={{ padding: 10 ,display:"flex",justifyContent:"space-around"}}>
-                    <span
-                      style={{
-                        color: "var(--primary-color)",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        navigate(`/audio/${audio._id}`);
-                      }}
-                    >
-                      Transript
-                    </span>
-                    <span
-                      style={{
-                        color: "var(--primary-color)",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        navigate(`/chat`,{ state: { transcript:audio.formattedTranscript } });
-                      }}
-                    >
-                      Chat
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-       </div>
+                      <div style={{ padding: 10 }}>
+                        <span>
+                          <CalendarOutlined style={{ marginRight: 10 }} />
+                          {formatDate(audio.createdAt)}
+                        </span>
+                      </div>
+
+                      <div
+                        style={{
+                          padding: 10,
+                          display: "flex",
+                          justifyContent: "space-around",
+                        }}
+                      >
+                        <span
+                          style={{
+                            color: "var(--primary-color)",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            navigate(`/audio/${audio._id}`);
+                          }}
+                        >
+                          Transript
+                        </span>
+                        <span
+                          style={{
+                            color: "var(--primary-color)",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            navigate(`/chat`, {
+                              state: { transcript: audio.formattedTranscript },
+                            });
+                          }}
+                        >
+                          Chat
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
       </div>
 
       <Modal
@@ -231,12 +249,12 @@ function Audios({ selectedItem }) {
           <Input
             prefix={<InfoCircleOutlined />}
             value={audioTitle}
-            onChange={(e)=>{
+            onChange={(e) => {
               setAudioTitle(e.target.value);
             }}
           ></Input>
         </div>
-       
+
         <br></br>
 
         <div>
@@ -246,15 +264,14 @@ function Audios({ selectedItem }) {
             type="file"
             onChange={handleAudioChange}
           ></Input>
-          
         </div>
-     
+
         {audioUrl && (
-    <audio controls>
-      <source src={audioUrl} type="audio/mpeg" />
-      Your browser does not support the audio element.
-    </audio>
-  )}
+          <audio controls>
+            <source src={audioUrl} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+        )}
       </Modal>
       <FloatButton
         icon={<PlusOutlined />}

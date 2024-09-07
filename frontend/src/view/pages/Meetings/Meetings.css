@@ -1,6 +1,6 @@
-.meeting-container{
-    border: 2px solid grey;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    width: 250px;
+.clientRecord-container {
+  border: 2px solid grey;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  width: 250px;
 }

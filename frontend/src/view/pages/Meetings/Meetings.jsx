@@ -41,11 +41,11 @@ function Meetings({ selectedItem }) {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const [meetingUrl, setMeetingUrl] = useState("");
-  const [meetingTitle, setMeetingTitle] = useState("");
+  const [clientRecordUrl, setClientRecordUrl] = useState("");
+  const [clientName, setClientName] = useState("");
 
-  const [meetingProvider, setMeetingProvider] = useState("Zoom");
-  const meetingProvidersList = [
+  const [clientRecordProvider, setClientRecordProvider] = useState("Zoom");
+  const clientRecordProvidersList = [
     {
       label: "Zoom",
       key: "1",
@@ -60,9 +60,9 @@ function Meetings({ selectedItem }) {
     },
   ];
 
-  const handleMeetingProviderMenuClick = (e) => {
-    setMeetingProvider(
-      meetingProvidersList.find((item) => item.key === e.key).label
+  const handleClientRecordProviderMenuClick = (e) => {
+    setClientRecordProvider(
+      clientRecordProvidersList.find((item) => item.key === e.key).label
     );
   };
   const [messageApi, contextHolder] = message.useMessage();
@@ -79,20 +79,20 @@ function Meetings({ selectedItem }) {
       },
     });
   };
-  const handleCreateMeeting = () => {
+  const handleCreateClientRecord = () => {
     setButtonLoading(true);
     axios
-      .post(`${import.meta.env.VITE_BACKEND}/meeting/add`, {
-        meetingUrl,
+      .post(`${import.meta.env.VITE_BACKEND}/clientRecord/add`, {
+        clientRecordUrl,
         userId: userData.id,
-        meetingTitle,
+        clientName,
       })
       .then((res) => {
         setIsModalOpen(false);
 
-        showtoast("success", "Created meeting successfully");
-        setMeetings((prevMeeting) => {
-          return [...prevMeeting, res.data.meeting];
+        showtoast("success", "Created clientRecord successfully");
+        setClientRecords((prevClientRecord) => {
+          return [...prevClientRecord, res.data.clientRecord];
         });
       })
       .catch((err) => {
@@ -106,16 +106,16 @@ function Meetings({ selectedItem }) {
         setButtonLoading(false);
       });
   };
-  const [meetings, setMeetings] = useState([]);
+  const [clientRecords, setClientRecords] = useState([]);
 
   useEffect(() => {
     setFrameLoading(true);
     axios
-      .post(`${import.meta.env.VITE_BACKEND}/meeting/get`, {
+      .post(`${import.meta.env.VITE_BACKEND}/clientRecord/get`, {
         userId: userData.id,
       })
       .then((res) => {
-        setMeetings(res.data.meetings);
+        setClientRecords(res.data.clientRecords);
       })
       .catch((e) => {
         console.log(e);
@@ -142,18 +142,25 @@ function Meetings({ selectedItem }) {
   };
 
   useEffect(() => {
-    if(!userData){
-      navigate("/login")
+    if (!userData) {
+      navigate("/login");
     }
-  },[])
+  }, []);
 
   const [drawer, setDrawer] = useState(false);
   return (
-    <div style={{ display: "flex", width: "100%", flexDirection: "row",height:"100%" }}>
-       <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)} />
-        </div>
-      <CustomSideBar selectedItem="meetings" drawer={drawer} />
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        flexDirection: "row",
+        height: "100%",
+      }}
+    >
+      <div className="drawer-button">
+        <MenuOutlined onClick={() => setDrawer(!drawer)} />
+      </div>
+      <CustomSideBar selectedItem="clientRecords" drawer={drawer} />
       <div
         style={{
           width: "80%",
@@ -164,122 +171,135 @@ function Meetings({ selectedItem }) {
         }}
         onClick={() => setDrawer(!drawer)}
       >
-       
-       <div>
-       <h1>My Meetings</h1>
-        {frameLoading ? (
-          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-        ) : meetings.length === 0 ? (
-          <span>No meetings</span>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "start",
-              alignContent: "center",
-            }}
-          >
-            {meetings.map((meeting) => {
-              return (
-                <div className="meeting-container">
-                  <div style={{ padding: 10, borderBottom: "1px grey solid" }}>
-                    <span>{meeting.meetingTitle}</span>
-                  </div>
+        <div>
+          <h1>My ClientRecords</h1>
+          {frameLoading ? (
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
+            />
+          ) : clientRecords.length === 0 ? (
+            <span>No clientRecords</span>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 10,
+                alignItems: "center",
+                justifyContent: "start",
+                alignContent: "center",
+              }}
+            >
+              {clientRecords.map((clientRecord) => {
+                return (
+                  <div className="clientRecord-container">
+                    <div
+                      style={{ padding: 10, borderBottom: "1px grey solid" }}
+                    >
+                      <span>{clientRecord.clientName}</span>
+                    </div>
 
-                  <div style={{ padding: 10 }}>
-                    <span>
-                      <CalendarOutlined style={{ marginRight: 10 }} />
-                      {formatDate(meeting.createdAt)}
-                    </span>
-                  </div>
-                  <div style={{ padding: 10 }}>
-                    <span>
-                      {getTag(meeting.status)}
-                      {meeting.status}
-                    </span>
-                  </div>
-                  <div style={{ padding: 10,display:"flex",justifyContent:"space-around" }}>
-                    <span
+                    <div style={{ padding: 10 }}>
+                      <span>
+                        <CalendarOutlined style={{ marginRight: 10 }} />
+                        {formatDate(clientRecord.createdAt)}
+                      </span>
+                    </div>
+                    <div style={{ padding: 10 }}>
+                      <span>
+                        {getTag(clientRecord.status)}
+                        {clientRecord.status}
+                      </span>
+                    </div>
+                    <div
                       style={{
-                        color: "var(--primary-color)",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        navigate(`/meeting/${meeting._id}`);
+                        padding: 10,
+                        display: "flex",
+                        justifyContent: "space-around",
                       }}
                     >
-                      Transript
-                    </span>
-                    <span
-                      style={{
-                        color: "var(--primary-color)",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        navigate(`/chat`,{ state: { transcript:meeting.formattedTranscript } });
-                      }}
-                    >
-                      Chat
-                    </span>
+                      <span
+                        style={{
+                          color: "var(--primary-color)",
+                          textDecoration: "underline",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          navigate(`/clientRecord/${clientRecord._id}`);
+                        }}
+                      >
+                        Transript
+                      </span>
+                      <span
+                        style={{
+                          color: "var(--primary-color)",
+                          textDecoration: "underline",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          navigate(`/chat`, {
+                            state: {
+                              transcript: clientRecord.formattedTranscript,
+                            },
+                          });
+                        }}
+                      >
+                        Chat
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-       </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       <Modal
-        title="Create Meeting"
+        title="Create ClientRecord"
         open={isModalOpen}
         onOk={() => {
-          handleCreateMeeting();
+          handleCreateClientRecord();
         }}
         onCancel={handleCancel}
         okText="Create"
         okButtonProps={{ loading: buttonLoading }}
       >
         <div>
-          <label>Meeting Title:</label>
+          <label>ClientRecord Title:</label>
           <Input
             prefix={<InfoCircleOutlined />}
-            value={meetingTitle}
+            value={clientName}
             onChange={(e) => {
-              setMeetingTitle(e.target.value);
+              setClientName(e.target.value);
             }}
           ></Input>
         </div>
         <br></br>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Meeting Provider:</label>
+          <label>ClientRecord Provider:</label>
           <Dropdown
             menu={{
-              items: meetingProvidersList,
-              onClick: handleMeetingProviderMenuClick,
+              items: clientRecordProvidersList,
+              onClick: handleClientRecordProviderMenuClick,
             }}
             trigger={["click"]}
           >
             <Button style={{ textAlign: "start" }}>
-              {meetingProvider}
+              {clientRecordProvider}
               <DownOutlined />
             </Button>
           </Dropdown>
         </div>
         <br></br>
         <div>
-          <label>Meeting Url:</label>
+          <label>ClientRecord Url:</label>
           <Input
             prefix={<LinkOutlined />}
-            value={meetingUrl}
+            value={clientRecordUrl}
             onChange={(e) => {
-              setMeetingUrl(e.target.value);
+              setClientRecordUrl(e.target.value);
             }}
           ></Input>
         </div>

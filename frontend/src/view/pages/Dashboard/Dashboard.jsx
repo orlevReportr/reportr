@@ -69,14 +69,14 @@ function Dashboard() {
           }}
         >
           <Card
-            title="Total Meetings"
+            title="Total ClientRecords"
             hoverable={true}
             style={{ width: "200px" }}
             loading={loading}
           >
             <Statistic
-              title="Meetings"
-              value={stats.totalMeetings}
+              title="ClientRecords"
+              value={stats.totalClientRecords}
               prefix={<WechatOutlined />}
             />
           </Card>
@@ -94,14 +94,14 @@ function Dashboard() {
             />
           </Card>
           <Card
-            title="Total Meeting Time"
+            title="Total ClientRecord Time"
             hoverable={true}
             style={{ width: "200px" }}
             loading={loading}
           >
             <Statistic
               title="Time"
-              value={stats.totalMeetingTime}
+              value={stats.totalClientRecordTime}
               prefix={<HistoryOutlined />}
             />
           </Card>

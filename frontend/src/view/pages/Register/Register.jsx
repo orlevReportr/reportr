@@ -75,7 +75,7 @@ function Register() {
         <div>
           <img src="../assets/logo.png" height={80}></img>
         </div>
-        <h1 style={{ textAlign: "center" }}>Meeting Master</h1>
+        <h1 style={{ textAlign: "center" }}>ClientRecord Master</h1>
         <span>Welcome back!</span>
         <br></br>
 
@@ -105,7 +105,7 @@ function Register() {
           />
         </div>
         <br></br>
-        
+
         <div style={{ width: "100%" }}>
           <Button
             type="primary"

@@ -1,32 +1,28 @@
-const Meeting = require("../models/MeetingModel");
+const ClientRecord = require("../models/ClientRecordModel");
 const Counter = require("../models/CounterModel");
 const axios = require("axios");
 const { getSummary, getFormattedSummary } = require("../utils/getSummary");
 
-const createMeeting = async (req, res) => {
+const createClientRecord = async (req, res) => {
   try {
-    const { meetingUrl, userId, meetingTitle } = req.body;
-
     const counter = await Counter.findOneAndUpdate(
-      { id: "autovalMeeting" },
+      { id: "autovalClientRecord" },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
 
-    const meeting = new Meeting({
+    const clientRecord = new ClientRecord({
       id: counter.seq,
       status: "Waiting",
-      userId,
-      meetingUrl,
-      meetingTitle,
+      ...req.body,
     });
 
-    await meeting.save();
+    await clientRecord.save();
 
     res.status(201).json({
       status: "success",
-      message: "Added Meeting",
-      meeting: meeting,
+      message: "Added ClientRecord",
+      clientRecord: clientRecord,
     });
   } catch (error) {
     return res.status(500).json({ error: "Server Error!" });
@@ -35,28 +31,30 @@ const createMeeting = async (req, res) => {
 
 const startRecording = async (req, res) => {
   try {
-    const { meetingId } = req.body;
-    const meeting = await Meeting.findOne({ id: meetingId });
-    if (!meeting) {
-      return res.status(400).json({ error: "Meeting not found" });
+    const { clientRecordId } = req.body;
+    const clientRecord = await ClientRecord.findOne({ id: clientRecordId });
+    if (!clientRecord) {
+      return res.status(400).json({ error: "ClientRecord not found" });
     }
-    meeting.meetingStartTime = new Date();
+    clientRecord.clientRecordStartTime = new Date();
 
-    const bot = await recallFetch(meeting.meetingUrl);
+    const bot = await recallFetch(clientRecord.clientRecordUrl);
 
-    meeting.botId = bot.id;
-    meeting.status = "Started";
-    await meeting.save();
+    clientRecord.botId = bot.id;
+    clientRecord.status = "Started";
+    await clientRecord.save();
     return res.json({
       botId: bot.id,
     });
   } catch (e) {
-    console.log(e);
+    console.log(e.response);
+
+    console.log("lala");
     return res.status(500).json({ error: "Server Error!" });
   }
 };
 
-const recallFetch = async (meetingUrl) => {
+const recallFetch = async (clientRecordUrl) => {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -65,7 +63,7 @@ const recallFetch = async (meetingUrl) => {
 
   const reqBody = {
     bot_name: `${process.env.BOT_NAME}`,
-    meeting_url: meetingUrl,
+    meeting_url: clientRecordUrl,
     transcription_options: {
       provider: "default",
     },
@@ -99,27 +97,27 @@ const stopRecording = async (req, res) => {
       "Content-Type": "application/json",
       Authorization: `Token ${process.env.RECALL_API_TOKEN}`,
     };
-    const { meetingId } = req.body;
-    const meeting = await Meeting.findOne({ id: meetingId });
-    if (!meeting) {
-      return res.status(400).json({ error: "Meeting not found" });
+    const { clientRecordId } = req.body;
+    const clientRecord = await ClientRecord.findOne({ id: clientRecordId });
+    if (!clientRecord) {
+      return res.status(400).json({ error: "ClientRecord not found" });
     }
-
+    console.log(clientRecord);
     await axios.post(
-      `https://us-west-2.recall.ai/api/v1/bot/${meeting.botId}/leave_call`,
+      `https://us-west-2.recall.ai/api/v1/bot/${clientRecord.botId}/leave_call`,
       {},
       { headers }
     );
-    meeting.meetingEndTime = new Date();
-    const transcript = formatTranscript(meeting.transcript);
-    meeting.formattedTranscript = transcript;
+    clientRecord.clientRecordEndTime = new Date();
+    const transcript = formatTranscript(clientRecord.transcript);
+    clientRecord.formattedTranscript = transcript;
     const summary = await getSummary(transcript);
     const formattedSummary = await getFormattedSummary(transcript);
 
-    meeting.status = "Stopped";
-    meeting.formattedSummary = formattedSummary;
-    meeting.summary = summary;
-    await meeting.save();
+    clientRecord.status = "Stopped";
+    clientRecord.formattedSummary = formattedSummary;
+    clientRecord.summary = summary;
+    await clientRecord.save();
 
     return res
       .status(200)
@@ -156,15 +154,15 @@ function formatTranscript(transcript) {
   return formattedTranscript;
 }
 
-const getUserMeetings = async (req, res) => {
+const getUserClientRecords = async (req, res) => {
   try {
     const { userId } = req.body;
-    const meetings = await Meeting.find({ userId });
+    const clientRecords = await ClientRecord.find({ userId });
 
     return res.status(200).json({
       status: "success",
-      message: "Meetings retrieved",
-      meetings,
+      message: "ClientRecords retrieved",
+      clientRecords,
     });
   } catch (e) {
     console.error(e);
@@ -174,15 +172,15 @@ const getUserMeetings = async (req, res) => {
   }
 };
 
-const getOneMeeting = async (req, res) => {
+const getOneClientRecord = async (req, res) => {
   try {
-    const { meetingId } = req.body;
-    const meeting = await Meeting.findOne({ _id: meetingId });
+    const { clientRecordId } = req.body;
+    const clientRecord = await ClientRecord.findOne({ _id: clientRecordId });
 
     return res.status(200).json({
       status: "success",
-      message: "Meeting retrieved",
-      meeting,
+      message: "ClientRecord retrieved",
+      clientRecord,
     });
   } catch (e) {
     console.error(e);
@@ -194,8 +192,8 @@ const getOneMeeting = async (req, res) => {
 
 module.exports = {
   startRecording,
-  createMeeting,
+  createClientRecord,
   stopRecording,
-  getUserMeetings,
-  getOneMeeting,
+  getUserClientRecords,
+  getOneClientRecord,
 };

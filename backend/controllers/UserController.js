@@ -1,9 +1,9 @@
-const Counter = require("../models/CounterModel")
-const Meeting = require("../models/MeetingModel")
-const Audio = require("../models/AudioModel")
+const Counter = require("../models/CounterModel");
+const ClientRecord = require("../models/ClientRecordModel");
+const Audio = require("../models/AudioModel");
 
-const User = require("../models/UserModel")
-const bcrypt = require("bcrypt")
+const User = require("../models/UserModel");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const addUser = async (req, res) => {
@@ -26,16 +26,15 @@ const addUser = async (req, res) => {
     res.status(201).json({
       status: "success",
       message: "Added User",
-      user: user
+      user: user,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Server Error!"
+      message: "Server Error!",
     });
   }
-}
-
+};
 
 const loginUser = async (req, res) => {
   try {
@@ -53,16 +52,16 @@ const loginUser = async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     const token = jwt.sign(
-      { id: user.id,email:user.email },
+      { id: user.id, email: user.email },
       process.env.JWT_SECRET
-  );
+    );
 
     if (passwordMatch) {
       res.status(200).json({
         status: "success",
         message: "Login successful",
         user: user,
-        token:token,
+        token: token,
       });
     } else {
       res.status(401).json({
@@ -76,48 +75,55 @@ const loginUser = async (req, res) => {
       message: "Server Error!",
     });
   }
-
-}
+};
 
 const getStats = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    // Find all meetings of the user
-    const meetings = await Meeting.find({ userId: userId });
+    // Find all clientRecords of the user
+    const clientRecords = await ClientRecord.find({ userId: userId });
     const audios = await Audio.find({ userId: userId });
 
-    let totalMeetingTime = 0;
-    meetings.forEach(meeting => {
-      if (meeting.meetingStartTime && meeting.meetingEndTime) {
-        totalMeetingTime += meeting.meetingEndTime - meeting.meetingStartTime;
+    let totalClientRecordTime = 0;
+    clientRecords.forEach((clientRecord) => {
+      if (
+        clientRecord.clientRecordStartTime &&
+        clientRecord.clientRecordEndTime
+      ) {
+        totalClientRecordTime +=
+          clientRecord.clientRecordEndTime - clientRecord.clientRecordStartTime;
       }
     });
 
-    // Convert total meeting time to hh:mm:ss format
-    const totalMeetingTimeInSeconds = Math.floor(totalMeetingTime / 1000);
-    const hours = Math.floor(totalMeetingTimeInSeconds / 3600);
-    const minutes = Math.floor((totalMeetingTimeInSeconds % 3600) / 60);
-    const seconds = totalMeetingTimeInSeconds % 60;
-    const formattedTotalMeetingTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // Convert total clientRecord time to hh:mm:ss format
+    const totalClientRecordTimeInSeconds = Math.floor(
+      totalClientRecordTime / 1000
+    );
+    const hours = Math.floor(totalClientRecordTimeInSeconds / 3600);
+    const minutes = Math.floor((totalClientRecordTimeInSeconds % 3600) / 60);
+    const seconds = totalClientRecordTimeInSeconds % 60;
+    const formattedTotalClientRecordTime = `${hours
+      .toString()
+      .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
 
     return res.status(200).json({
       status: "success",
-      message: "User meeting stats retrieved",
+      message: "User clientRecord stats retrieved",
       stats: {
-        totalMeetingTime: formattedTotalMeetingTime,
-        totalMeetings: meetings.length,
-        totalAudios: audios.length
-      }
+        totalClientRecordTime: formattedTotalClientRecordTime,
+        totalClientRecords: clientRecords.length,
+        totalAudios: audios.length,
+      },
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Server Error!"
+      message: "Server Error!",
     });
   }
 };
 
-
-
-module.exports = {addUser,loginUser,getStats }
+module.exports = { addUser, loginUser, getStats };
