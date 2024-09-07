@@ -1,33 +1,42 @@
 import React, { useEffect, useState } from "react";
 import CustomSideBar from "../../components/CustomSideBar/CustomSideBar";
-import { AudioOutlined, HistoryOutlined, MenuOutlined, UserOutlined, WechatOutlined } from "@ant-design/icons";
-import "./Dashboard.css"
+import {
+  AudioOutlined,
+  HistoryOutlined,
+  MenuOutlined,
+  UserOutlined,
+  WechatOutlined,
+} from "@ant-design/icons";
+import "./Dashboard.css";
 import { Card, Statistic } from "antd";
-import { UserData } from './../../../utils/UserData';
+import { UserData } from "../../../utils/UserData";
 import axios from "axios";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 function Dashboard() {
   const [drawer, setDrawer] = useState(false);
-  const [loading,setLoading]=useState(false);
-  const [stats,setStats]=useState([]);
-  const navigate=useNavigate();
-const userData=UserData();
-useEffect(()=>{
-    if(!userData){
-      navigate("/login")
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState([]);
+  const navigate = useNavigate();
+  const userData = UserData();
+  useEffect(() => {
+    if (!userData) {
+      navigate("/login");
     }
-  setLoading(true);
-  axios.post(`${import.meta.env.VITE_BACKEND}/user/stats`,{
-    userId:userData.id
-  }).then((res)=>{
-setStats(res.data.stats)
-  }).catch((err)=>{
-    console.log(err)
-  }).finally(()=>{
-    setLoading(false);
-  });
-
-},[])
+    setLoading(true);
+    axios
+      .post(`${import.meta.env.VITE_BACKEND}/user/stats`, {
+        userId: userData.id,
+      })
+      .then((res) => {
+        setStats(res.data.stats);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
   return (
     <div
       style={{
@@ -38,8 +47,8 @@ setStats(res.data.stats)
       }}
     >
       <div className="drawer-button">
-          <MenuOutlined onClick={() => setDrawer(!drawer)} />
-        </div>
+        <MenuOutlined onClick={() => setDrawer(!drawer)} />
+      </div>
       <CustomSideBar selectedItem="dashboard" drawer={drawer} />
       <div
         style={{
@@ -49,12 +58,20 @@ setStats(res.data.stats)
         }}
         onClick={() => setDrawer(!drawer)}
       >
-        
-       <div style={{display:"flex",gap:"20px",height:"min-content",flexWrap:"wrap",justifyContent:"space-around",width:"100%"}}>
-       <Card
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            height: "min-content",
+            flexWrap: "wrap",
+            justifyContent: "space-around",
+            width: "100%",
+          }}
+        >
+          <Card
             title="Total Meetings"
             hoverable={true}
-            style={{  width: "200px" }}
+            style={{ width: "200px" }}
             loading={loading}
           >
             <Statistic
@@ -67,9 +84,8 @@ setStats(res.data.stats)
           <Card
             title="Total Audios"
             hoverable={true}
-            style={{  width: "200px" }}
+            style={{ width: "200px" }}
             loading={loading}
-
           >
             <Statistic
               title="Audios"
@@ -80,9 +96,8 @@ setStats(res.data.stats)
           <Card
             title="Total Meeting Time"
             hoverable={true}
-            style={{  width: "200px" }}
+            style={{ width: "200px" }}
             loading={loading}
-
           >
             <Statistic
               title="Time"
@@ -90,12 +105,8 @@ setStats(res.data.stats)
               prefix={<HistoryOutlined />}
             />
           </Card>
-         
-       </div>
-        
+        </div>
       </div>
-
-      
     </div>
   );
 }
