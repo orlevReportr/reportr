@@ -18,18 +18,18 @@ import { format } from "date-fns";
 
 function YourTemplates() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editorContent, setEditorContent] = useState(""); // State for the Markdown editor content
-  const [selectedTab, setSelectedTab] = useState("write"); // State for managing the editor tab
+  const [editorContent, setEditorContent] = useState("");
+  const [selectedTab, setSelectedTab] = useState("write");
   const [templateTitle, setTemplateTitle] = useState("");
   const [templates, setTemplates] = useState([]);
-  const [isEditMode, setIsEditMode] = useState(false); // State for edit mode
-  const [editingTemplateId, setEditingTemplateId] = useState(null); // State for the ID of the template being edited
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState(null);
 
   const showModal = () => {
     setIsModalOpen(true);
-    setIsEditMode(false); // Ensure we are in create mode
-    setTemplateTitle(""); // Reset title
-    setEditorContent(""); // Reset content
+    setIsEditMode(false);
+    setTemplateTitle("");
+    setEditorContent("");
   };
 
   const handleOk = () => {
@@ -66,12 +66,11 @@ function YourTemplates() {
   const handleEdit = (template) => {
     setIsModalOpen(true);
     setIsEditMode(true);
-    setEditingTemplateId(template.id); // Store the ID of the template being edited
-    setTemplateTitle(template.templateTitle); // Prefill the title
-    setEditorContent(template.content); // Prefill the content
+    setEditingTemplateId(template.id);
+    setTemplateTitle(template.templateTitle);
+    setEditorContent(template.content);
   };
 
-  // Markdown to HTML converter using Showdown
   const converter = new Showdown.Converter();
   const userData = UserData();
   useEffect(() => {
@@ -178,9 +177,7 @@ function YourTemplates() {
                                           }}
                                           className="flex gap-[5px] cursor-pointer p-[5px] hover:bg-gray-200 rounded items-center"
                                         >
-                                          <DeleteOutlined
-                                            style={{ color: "red" }}
-                                          />
+                                          <DeleteOutlined className="text-[red]" />
                                           <span className="text-[red]">
                                             Delete
                                           </span>
