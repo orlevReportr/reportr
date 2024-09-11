@@ -9,7 +9,6 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -60,7 +59,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -92,4 +90,8 @@ button:focus-visible {
 
 .ant-popover-inner {
   padding: 5px !important;
+}
+
+.mde-text {
+  background-color: transparent;
 }

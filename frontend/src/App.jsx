@@ -12,6 +12,8 @@ import Dashboard from "./view/pages/Dashboard/Dashboard";
 import Chatting from "./view/pages/Chatting/Chatting";
 import Meeting from "./view/pages/Meeting/Meeting";
 import Meetings from "./view/pages/Meetings/Meetings";
+import Consult from "./view/pages/Consult/Consult";
+import YourTemplates from "./view/pages/Customize/YourTemplates/YourTemplates";
 
 function App() {
   return (
@@ -19,8 +21,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/client-records" element={<ClientRecords />} />
-        <Route path="/customize" element={<ClientRecords />} />
-        <Route path="/consult" element={<ClientRecords />} />
+        <Route path="/consult" element={<Consult />} />
+        <Route
+          path="/customize/reportr-ai-templates"
+          element={<YourTemplates />}
+        />
+        <Route path="/customize/your-templates" element={<YourTemplates />} />
+
         <Route path="/settings" element={<ClientRecords />} />
 
         <Route path="/signup" element={<Register />} />
