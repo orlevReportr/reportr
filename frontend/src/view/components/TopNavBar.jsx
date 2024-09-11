@@ -7,7 +7,7 @@ function TopNavBar() {
 
   const navigate = useNavigate();
   return (
-    <div className="flex gap-[10px] items-center py-[10px] px-[50px]">
+    <div className="flex gap-[10px] items-center py-[10px] px-[50px] bg-[white]">
       <span
         className="text-[16px] font-bold"
         onClick={() => {
@@ -47,7 +47,10 @@ function TopNavBar() {
         }}
         style={{
           borderBottom:
-            activeTab === "/customize" ? "2px solid #383838" : "none",
+            activeTab === "/customize/your-templates" ||
+            activeTab === "/customize/reportr-ai-templates"
+              ? "2px solid #383838"
+              : "none",
         }}
       >
         <div className="duration-100 cursor-pointer hover:bg-[#dcdcdc] hover:text-opacity-70 h-full rounded p-[5px]">
