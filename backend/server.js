@@ -122,6 +122,8 @@ app.use("/user", UserRouter);
 
 const AudioRouter = require("./routes/AudioRoutes");
 app.use("/audio", AudioRouter);
+const TemplateRouter = require("./routes/TemplateRoutes");
+app.use("/template", TemplateRouter);
 
 mongoose.connect(process.env.DBURI);
 
