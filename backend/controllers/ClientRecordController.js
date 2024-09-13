@@ -38,7 +38,7 @@ const startRecording = async (req, res) => {
     }
     clientRecord.clientRecordStartTime = new Date();
 
-    const bot = await recallFetch(clientRecord.clientRecordUrl);
+    const bot = await recallFetch(clientRecord.meetingUrl);
 
     clientRecord.botId = bot.id;
     clientRecord.status = "Started";
@@ -54,7 +54,7 @@ const startRecording = async (req, res) => {
   }
 };
 
-const recallFetch = async (clientRecordUrl) => {
+const recallFetch = async (meetingUrl) => {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -63,7 +63,7 @@ const recallFetch = async (clientRecordUrl) => {
 
   const reqBody = {
     bot_name: `${process.env.BOT_NAME}`,
-    meeting_url: clientRecordUrl,
+    meeting_url: meetingUrl,
     transcription_options: {
       provider: "default",
     },

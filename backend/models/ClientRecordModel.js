@@ -63,7 +63,7 @@ const ClientRecordSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    clientRecordUrl: {
+    meetingUrl: {
       type: String,
       required: true,
     },
