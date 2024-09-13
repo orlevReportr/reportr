@@ -8,6 +8,7 @@ import { UserData } from "../../../utils/UserData";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { useAudioRecorder } from "react-audio-voice-recorder";
 import ChevronRight from "../../icons/ChevronRight";
+import * as Showdown from "showdown";
 
 function Consult() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,17 +19,12 @@ function Consult() {
   const [clientName, setClientName] = useState("");
   const [gender, setGender] = useState("");
   const [type, setType] = useState("inPerson");
-  const [template, setTemplate] = useState("default");
+  const [template, setTemplate] = useState();
   const [meetingUrl, setMeetingUrl] = useState("");
   const [clientConcent, setClientConcent] = useState(false);
   const [transcription, setTranscription] = useState("");
-  const recorderControls = useAudioRecorder(
-    {
-      noiseSuppression: true,
-      echoCancellation: true,
-    },
-    (err) => console.table(err)
-  );
+  const [loading, setLoading] = useState(false);
+  const recorderControls = useAudioRecorder({}, (err) => console.table(err));
   const [errors, setErrors] = useState({});
 
   const audioDivRef = React.useRef();
@@ -69,22 +65,6 @@ function Consult() {
       meetingUrl,
     });
     setIsModalOpen(true);
-  };
-
-  const onReset = () => {
-    setClientName("");
-    setGender("");
-    setType("inPerson");
-    setTemplate("default");
-    setMeetingUrl("");
-    setErrors({});
-  };
-
-  const onFill = () => {
-    setClientName("John Doe");
-    setGender("male");
-    setType("inPerson");
-    setTemplate("default");
   };
 
   const handleChange = (field, value) => {
@@ -139,28 +119,67 @@ function Consult() {
         break;
     }
   };
-  const addAudioElement = (blob) => {
+  const addAudioElement = async (blob) => {
+    // Clear existing audio elements
+    if (audioDivRef.current) {
+      audioDivRef.current.innerHTML = ""; // Remove all previous audio elements
+    }
+
+    // Create a new audio element
     const url = URL.createObjectURL(blob);
     const audio = document.createElement("audio");
     audio.src = url;
     audio.controls = true;
+
+    // Append the new audio element
     if (audioDivRef.current) {
       audioDivRef.current.appendChild(audio);
     }
+
+    // Prepare form data for upload
+    const formData = new FormData();
+    formData.append("file", blob, "audio.mp3");
+    formData.append("templateId", template);
+    formData.append("userId", userData.id);
+    formData.append("clientName", clientName);
+    formData.append("clientGender", gender);
+
+    // Upload audio
+    setLoading(true);
+    try {
+      const response = await axiosRequest.post("/audio/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setTranscription(response.data.audio.transcription);
+      console.log(response.data.audio.transcription);
+    } catch (error) {
+      console.error("Error uploading audio:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
   const handleNextClient = () => {
     // Clear all form fields
     setClientName("");
     setGender("");
     setType("inPerson");
-    setTemplate("default");
+    setTemplate();
     setMeetingUrl("");
     setClientConcent(false);
     setErrors({});
 
     // Clear audio elements
     if (audioDivRef.current) {
-      audioDivRef.current.innerHTML = "";
+      while (audioDivRef.current.firstChild) {
+        console.log("clearing");
+        audioDivRef.current.removeChild(audioDivRef.current.firstChild);
+      }
+    } else {
+      console.log("Audio div reference doesn't exist");
     }
 
     // Stop any ongoing recording
@@ -168,6 +187,7 @@ function Consult() {
       recorderControls.stopRecording();
     }
   };
+  const converter = new Showdown.Converter();
 
   useEffect(() => {
     axiosRequest.post("/template/get", { userId: userData.id }).then((res) => {
@@ -239,7 +259,7 @@ function Consult() {
                 value={template}
                 onChange={(value) => handleChange("template", value)}
                 options={[
-                  { value: "default", label: "Default template" },
+                  // { value: "default", label: "Default template" },
                   ...templates.map((temp) => ({
                     value: temp.id,
                     label: temp.templateTitle,
@@ -273,12 +293,7 @@ function Consult() {
           </div>
 
           <div className="flex gap-[10px]">
-            <Button
-              type="default"
-              className="h-[35px]"
-              icon={<SaveOutlined />}
-              onClick={onFill}
-            >
+            <Button type="default" className="h-[35px]" icon={<SaveOutlined />}>
               Save Client for Future
             </Button>
             {clientConcent && !recorderControls.isRecording ? (
@@ -327,6 +342,10 @@ function Consult() {
               onClick={() => {
                 setIsModalOpen(false);
                 setClientConcent(true);
+                if (audioDivRef.current) {
+                  audioDivRef.current.innerHTML = ""; // Remove all previous audio elements
+                }
+
                 recorderControls.startRecording();
               }}
               className="cursor-pointer w-full relative font-medium text-[white] rounded-md bg-[#1333A7] text-[16px] flex items-center justify-center h-[45px]"
@@ -356,7 +375,7 @@ function Consult() {
               downloadFileExtension="mp3"
               showVisualizer={true}
             />
-            <div ref={audioDivRef}></div>
+            {!recorderControls.isRecording && <div ref={audioDivRef}></div>}
           </div>
 
           <div className="w-full h-full mt-4 md:mt-10 flex flex-col items-center svelte-ur6agj">
@@ -390,38 +409,20 @@ function Consult() {
                   <div className="text-[#BABABA] svelte-1atycu8">
                     {recorderControls.isRecording ? (
                       <span>Finish recording to get transcript</span>
+                    ) : loading ? (
+                      <span>Loading</span>
                     ) : (
-                      <p>{transcription}</p>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: converter.makeHtml(transcription),
+                        }}
+                        className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip"
+                      ></div>
                     )}
                   </div>{" "}
                 </div>
               </div>
             </div>{" "}
-            <div className="gap-2 mt-3 font-semibold text-2xl flex justify-center sm:justify-between items-center w-full sm:w-[90%] md:w-[70%] svelte-ur6agj">
-              <div className="w-full flex items-center justify-end svelte-ur6agj">
-                <button
-                  id="copy_button"
-                  className="btn btn-secondary copy-button flex w-full sm:w-[180px] justify-center items-center text-white normal-case z-0 svelte-ur6agj"
-                  type="submit"
-                >
-                  <span className="svelte-ur6agj">Copy notepad</span>{" "}
-                  <svg
-                    width="19"
-                    height="21"
-                    viewBox="0 0 19 21"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="svelte-ur6agj"
-                  >
-                    <path
-                      d="M3.9855 19.228C3.68222 19.228 3.41685 19.0968 3.18939 18.8343C2.96193 18.5718 2.84821 18.2655 2.84821 17.9155V4.7249H3.9855V17.9155H12.9701V19.228H3.9855ZM6.26009 16.603C5.95681 16.603 5.69144 16.4718 5.46398 16.2093C5.23652 15.9468 5.12279 15.6405 5.12279 15.2905V3.04053C5.12279 2.69053 5.23652 2.38428 5.46398 2.12178C5.69144 1.85928 5.95681 1.72803 6.26009 1.72803H14.6002C14.9035 1.72803 15.1689 1.85928 15.3963 2.12178C15.6238 2.38428 15.7375 2.69053 15.7375 3.04053V15.2905C15.7375 15.6405 15.6238 15.9468 15.3963 16.2093C15.1689 16.4718 14.9035 16.603 14.6002 16.603H6.26009Z"
-                      fill="white"
-                      className="svelte-ur6agj"
-                    ></path>
-                  </svg>
-                </button>
-              </div>{" "}
-            </div>
           </div>
         </div>
       )}
