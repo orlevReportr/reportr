@@ -10,14 +10,22 @@ const TemplateSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-
+    type: {
+      type: String,
+      enum: ["ReportAI", "Custom"],
+      required: true,
+      default: "ReportAI",
+    },
     userId: {
       type: Number,
-      required: true,
     },
     content: {
       type: String,
       required: true,
+    },
+    isDefaultTemplate: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
