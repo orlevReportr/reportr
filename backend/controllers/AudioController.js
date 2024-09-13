@@ -1,57 +1,72 @@
 const { default: axios } = require("axios");
 const Audio = require("../models/AudioModel");
 const Counter = require("../models/CounterModel");
+const Template = require("../models/TemplateModel");
 const path = require("path");
 const fs = require("fs");
 const cloudinary = require("cloudinary").v2;
-
+const FormData = require("form-data");
+const { PassThrough } = require("stream");
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+const OpenAI = require("openai");
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API });
+
 const addAudio = async (req, res) => {
   try {
-    const { audioTitle, userId } = req.body;
     const file = req.file;
 
     if (!file) {
       return res.status(400).json({ message: "No file uploaded!" });
     }
+
+    const template = await Template.findOne({ id: req.body.templateId });
+    if (!template) {
+      return res.status(400).json({ message: "Template not found!" });
+    }
+
+    let transcription;
+    try {
+      const form = new FormData();
+      form.append("file", file.buffer, { filename: "audio.mp3" });
+      form.append("model", "whisper-1");
+
+      const formStream = form.pipe(new PassThrough());
+
+      transcription = await openai.audio.transcriptions.create({
+        data: formStream,
+        headers: form.getHeaders(),
+      });
+    } catch (transcriptionError) {
+      console.error(transcriptionError);
+      return res
+        .status(500)
+        .json({ error: "Failed to transcribe audio file!" });
+    }
+
     const counter = await Counter.findOneAndUpdate(
       { id: "autovalAudio" },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
-    console.log(file.path);
-    cloudinary.uploader
-      .upload(file.path, {
-        resource_type: "video",
-      })
-      .then(async (result) => {
-        console.log("object uploaded successfully")
-        const bot = await recallFetch(result.secure_url);
 
-        const audio = new Audio({
-          id: counter.seq,
-          audioTitle,
-          userId,
-          audioPath: file.path,
-          botId: bot.id,
-        });
+    const audio = new Audio({
+      id: counter.seq,
+      transcription: transcription.data.text,
+      ...req.body,
+    });
 
-        await audio.save();
+    await audio.save();
 
-        res.status(201).json({
-          status: "success",
-          message: "Added Audio",
-          audio,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json({ message: "error" });
-      });
+    return res.status(201).json({
+      status: "success",
+      message: "Added Audio",
+      audio,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Server Error!" });
@@ -72,13 +87,11 @@ const recallFetch = async (audioUrl) => {
     webhook_url: `${process.env.PUBLIC_URL}/transcribe`,
   };
 
-  const res = await axios.post(
-    `https://api.assemblyai.com/v2/transcript`,
-    reqBody,
-    {
+  const res = await axios
+    .post(`https://api.assemblyai.com/v2/transcript`, reqBody, {
       headers,
-    }
-  ).catch(err =>console.log(err));
+    })
+    .catch((err) => console.log(err));
 
   return res.data;
 };
