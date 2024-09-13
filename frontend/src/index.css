@@ -95,3 +95,7 @@ button:focus-visible {
 .mde-text {
   background-color: transparent;
 }
+
+.ant-form-item {
+  margin-bottom: 0;
+}

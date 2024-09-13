@@ -41,7 +41,7 @@ function Meetings({ selectedItem }) {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const [clientRecordUrl, setClientRecordUrl] = useState("");
+  const [meetingUrl, setmeetingUrl] = useState("");
   const [clientName, setClientName] = useState("");
 
   const [clientRecordProvider, setClientRecordProvider] = useState("Zoom");
@@ -83,7 +83,7 @@ function Meetings({ selectedItem }) {
     setButtonLoading(true);
     axios
       .post(`${import.meta.env.VITE_BACKEND}/clientRecord/add`, {
-        clientRecordUrl,
+        meetingUrl,
         userId: userData.id,
         clientName,
       })
@@ -297,9 +297,9 @@ function Meetings({ selectedItem }) {
           <label>ClientRecord Url:</label>
           <Input
             prefix={<LinkOutlined />}
-            value={clientRecordUrl}
+            value={meetingUrl}
             onChange={(e) => {
-              setClientRecordUrl(e.target.value);
+              setmeetingUrl(e.target.value);
             }}
           ></Input>
         </div>
