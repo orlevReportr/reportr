@@ -29,24 +29,36 @@ const addAudio = async (req, res) => {
       return res.status(400).json({ message: "Template not found!" });
     }
 
-    let transcription;
-    try {
-      const form = new FormData();
-      form.append("file", file.buffer, { filename: "audio.mp3" });
-      form.append("model", "whisper-1");
+    const form = new FormData();
+    form.append("file", file.buffer, { filename: "audio.mp3" });
+    form.append("model", "whisper-1");
 
-      const formStream = form.pipe(new PassThrough());
+    const formHeaders = form.getHeaders();
 
-      transcription = await openai.audio.transcriptions.create({
-        data: formStream,
-        headers: form.getHeaders(),
-      });
-    } catch (transcriptionError) {
-      console.error(transcriptionError);
-      return res
-        .status(500)
-        .json({ error: "Failed to transcribe audio file!" });
-    }
+    const response = await axios.post(
+      "https://api.openai.com/v1/audio/transcriptions",
+      form,
+      {
+        headers: {
+          ...formHeaders,
+          Authorization: `Bearer ${process.env.OPENAI_API}`,
+        },
+      }
+    );
+
+    const transcription = response.data;
+
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI assistant tasked with formatting transcriptions. The following text is a transcription of a conversation between two speakers. Please format the text so that each speaker's lines are labeled as 'Consultant:' or 'Client:' with the exact text provided. Do not add any additional content or context. Transcription text: ${transcription.text}`,
+        },
+      ],
+      model: "gpt-4o",
+    });
+
+    const formattedTranscription = completion.choices[0].message.content;
 
     const counter = await Counter.findOneAndUpdate(
       { id: "autovalAudio" },
@@ -56,7 +68,7 @@ const addAudio = async (req, res) => {
 
     const audio = new Audio({
       id: counter.seq,
-      transcription: transcription.data.text,
+      transcription: formattedTranscription,
       ...req.body,
     });
 
