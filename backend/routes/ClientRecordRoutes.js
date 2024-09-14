@@ -7,6 +7,7 @@ const {
   stopRecording,
   getUserClientRecords,
   getOneClientRecord,
+  createAndStartRecording,
 } = require("../controllers/ClientRecordController");
 
 router.post("/add", createClientRecord);
@@ -15,5 +16,6 @@ router.post("/", getOneClientRecord);
 
 router.post("/start-recording", startRecording);
 router.post("/stop-recording", stopRecording);
+router.post("/add-and-start", createAndStartRecording);
 
 module.exports = router;

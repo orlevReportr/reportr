@@ -54,6 +54,43 @@ const startRecording = async (req, res) => {
   }
 };
 
+const createAndStartRecording = async (req, res) => {
+  try {
+    // Step 1: Create a new client record with auto-increment ID
+    const counter = await Counter.findOneAndUpdate(
+      { id: "autovalClientRecord" },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+
+    const clientRecord = new ClientRecord({
+      id: counter.seq,
+      status: "Waiting",
+      ...req.body,
+    });
+
+    await clientRecord.save();
+
+    clientRecord.clientRecordStartTime = new Date();
+
+    const bot = await recallFetch(clientRecord.meetingUrl);
+
+    clientRecord.botId = bot.id;
+    clientRecord.status = "Started";
+    await clientRecord.save();
+
+    return res.status(201).json({
+      status: "success",
+      message: "ClientRecord created and recording started",
+      clientRecord: clientRecord,
+      botId: bot.id,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Server Error!" });
+  }
+};
+
 const recallFetch = async (meetingUrl) => {
   const headers = {
     Accept: "application/json",
@@ -97,18 +134,19 @@ const stopRecording = async (req, res) => {
       "Content-Type": "application/json",
       Authorization: `Token ${process.env.RECALL_API_TOKEN}`,
     };
-    const { clientRecordId } = req.body;
-    const clientRecord = await ClientRecord.findOne({ id: clientRecordId });
+    const { botId } = req.body;
+
+    const clientRecord = await ClientRecord.findOne({ botId });
     if (!clientRecord) {
       return res.status(400).json({ error: "ClientRecord not found" });
     }
-    console.log(clientRecord);
     await axios.post(
       `https://us-west-2.recall.ai/api/v1/bot/${clientRecord.botId}/leave_call`,
       {},
       { headers }
     );
     clientRecord.clientRecordEndTime = new Date();
+    /*
     const transcript = formatTranscript(clientRecord.transcript);
     clientRecord.formattedTranscript = transcript;
     const summary = await getSummary(transcript);
@@ -117,6 +155,7 @@ const stopRecording = async (req, res) => {
     clientRecord.status = "Stopped";
     clientRecord.formattedSummary = formattedSummary;
     clientRecord.summary = summary;
+    */
     await clientRecord.save();
 
     return res
@@ -196,4 +235,5 @@ module.exports = {
   stopRecording,
   getUserClientRecords,
   getOneClientRecord,
+  createAndStartRecording,
 };

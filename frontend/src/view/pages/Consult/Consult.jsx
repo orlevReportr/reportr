@@ -9,6 +9,7 @@ import { AudioRecorder } from "react-audio-voice-recorder";
 import { useAudioRecorder } from "react-audio-voice-recorder";
 import ChevronRight from "../../icons/ChevronRight";
 import * as Showdown from "showdown";
+import { io } from "socket.io-client";
 
 function Consult() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +18,7 @@ function Consult() {
 
   // State for each form field
   const [clientName, setClientName] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState("Male");
   const [type, setType] = useState("inPerson");
   const [template, setTemplate] = useState();
   const [meetingUrl, setMeetingUrl] = useState("");
@@ -27,15 +28,10 @@ function Consult() {
   const recorderControls = useAudioRecorder({}, (err) => console.table(err));
   const [errors, setErrors] = useState({});
 
+  const [socket, setSocket] = useState(null);
+  const [botId, setBotId] = useState(null);
+  const [onlineTranscription, setOnlineTranscription] = useState([]);
   const audioDivRef = React.useRef();
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -162,44 +158,113 @@ function Consult() {
     }
   };
 
-  const handleNextClient = () => {
-    // Clear all form fields
-    setClientName("");
-    setGender("");
-    setType("inPerson");
-    setTemplate();
-    setMeetingUrl("");
-    setClientConcent(false);
-    setErrors({});
-
-    // Clear audio elements
-    if (audioDivRef.current) {
-      while (audioDivRef.current.firstChild) {
-        console.log("clearing");
-        audioDivRef.current.removeChild(audioDivRef.current.firstChild);
-      }
+  const handleNextClient = async () => {
+    if (type === "online") {
+      console.log("entered here");
+      await axiosRequest
+        .post("/clientRecord/stop-recording", {
+          botId,
+        })
+        .then((res) => {
+          console.log(res.data);
+          setClientName("");
+          setBotId(null);
+          setGender("");
+          setType("inPerson");
+          setTemplate();
+          setMeetingUrl("");
+          setClientConcent(false);
+          setOnlineTranscription([]);
+          setErrors({});
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     } else {
-      console.log("Audio div reference doesn't exist");
-    }
+      setClientName("");
+      setGender("");
+      setType("inPerson");
+      setTemplate();
+      setMeetingUrl("");
+      setClientConcent(false);
+      setErrors({});
+      // Clear audio elements
+      if (audioDivRef.current) {
+        while (audioDivRef.current.firstChild) {
+          audioDivRef.current.removeChild(audioDivRef.current.firstChild);
+        }
+      }
 
-    // Stop any ongoing recording
-    if (recorderControls.isRecording) {
-      recorderControls.stopRecording();
+      if (recorderControls.isRecording) {
+        recorderControls.stopRecording();
+      }
     }
+    // Clear all form fields
   };
   const converter = new Showdown.Converter();
 
   useEffect(() => {
     axiosRequest.post("/template/get", { userId: userData.id }).then((res) => {
       setTemplates(res.data.templates);
+      setTemplate(res.data.templates[0].id);
     });
   }, []);
 
+  const handleOnlineMeeting = () => {
+    axiosRequest
+      .post("/clientRecord/add-and-start", {
+        clientName,
+        meetingUrl,
+        userId: userData.id,
+      })
+      .then((res) => {
+        console.log(res.data);
+
+        const newBotId = res.data.botId;
+        console.log(newBotId);
+
+        // Store botId in state
+        setBotId(newBotId);
+
+        if (!socket) {
+          console.log("connected to socket io");
+          const newSocket = io("http://localhost:5001");
+          setSocket(newSocket);
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (socket && botId) {
+      console.log("socket exist");
+      console.log(botId.toString());
+      socket.emit("joinBot", botId.toString());
+
+      // Listen for transcriptionAdded events
+      socket.on("transcriptionAdded", (data) => {
+        console.log("Received transcription:", data);
+
+        // Update the transcription state
+        setOnlineTranscription((prevTranscription) => [
+          ...prevTranscription,
+          data,
+        ]);
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+    };
+  }, [socket, botId]);
   return (
     <BaseLayout>
       <div className="flex flex-col">
-        <div className="flex justify-between bg-[#FAFAFA] h-[72px] items-center px-[70px]">
-          <div className="flex gap-[10px]">
+        <div className="flex flex-wrap justify-between bg-[#FAFAFA] h-auto min-h-[72px] items-center px-[70px]">
+          <div className="flex flex-wrap gap-[10px]">
             <div className="flex flex-col">
               <Input
                 placeholder="Client name"
@@ -259,7 +324,6 @@ function Consult() {
                 value={template}
                 onChange={(value) => handleChange("template", value)}
                 options={[
-                  // { value: "default", label: "Default template" },
                   ...templates.map((temp) => ({
                     value: temp.id,
                     label: temp.templateTitle,
@@ -296,7 +360,50 @@ function Consult() {
             <Button type="default" className="h-[35px]" icon={<SaveOutlined />}>
               Save Client for Future
             </Button>
-            {clientConcent && !recorderControls.isRecording ? (
+            {type === "online" ? (
+              clientConcent && botId ? (
+                <div
+                  onClick={handleNextClient}
+                  className="cursor-pointer flex h-[35px] items-center gap-[10px] rounded bg-[black] px-[20px] text-[white]"
+                >
+                  <span>Next Client</span>
+                  <ChevronRight />
+                </div>
+              ) : (
+                <div
+                  onClick={() => {
+                    if (recorderControls.isRecording) {
+                      recorderControls.stopRecording();
+                    } else {
+                      onFinish();
+                    }
+                  }}
+                  className="cursor-pointer flex h-[35px] items-center gap-[10px] rounded bg-[#1333A7] px-[20px] text-[white]"
+                >
+                  <PlayIcon />
+                  <span>
+                    {recorderControls.isRecording
+                      ? "Stop meeting"
+                      : "Start meeting"}{" "}
+                  </span>
+                </div>
+              )
+            ) : (
+              <div
+                onClick={() => {
+                  onFinish();
+                }}
+                className="cursor-pointer flex h-[35px] items-center gap-[10px] rounded bg-[#1333A7] px-[20px] text-[white]"
+              >
+                <PlayIcon />
+                <span>
+                  {recorderControls.isRecording
+                    ? "Stop Recording"
+                    : "Start Recording"}{" "}
+                </span>
+              </div>
+            )}
+            {/* {clientConcent && !recorderControls.isRecording ? (
               <div
                 onClick={handleNextClient}
                 className="cursor-pointer flex h-[35px] items-center gap-[10px] rounded bg-[black] px-[20px] text-[white]"
@@ -322,7 +429,7 @@ function Consult() {
                     : "Start recording"}{" "}
                 </span>
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>
@@ -346,7 +453,11 @@ function Consult() {
                   audioDivRef.current.innerHTML = ""; // Remove all previous audio elements
                 }
 
-                recorderControls.startRecording();
+                if (type === "online") {
+                  handleOnlineMeeting();
+                } else {
+                  recorderControls.startRecording();
+                }
               }}
               className="cursor-pointer w-full relative font-medium text-[white] rounded-md bg-[#1333A7] text-[16px] flex items-center justify-center h-[45px]"
             >
@@ -365,65 +476,134 @@ function Consult() {
       </Modal>
       {clientConcent && (
         <div>
-          <div className="flex items-center gap-[20px] justify-center">
-            <AudioRecorder
-              onRecordingComplete={(blob) => {
-                addAudioElement(blob);
-              }}
-              recorderControls={recorderControls}
-              downloadOnSavePress={true}
-              downloadFileExtension="mp3"
-              showVisualizer={true}
-            />
-            {!recorderControls.isRecording && <div ref={audioDivRef}></div>}
-          </div>
+          {type === "inPerson" && (
+            <div className="flex items-center gap-[20px] justify-center">
+              <AudioRecorder
+                onRecordingComplete={(blob) => {
+                  addAudioElement(blob);
+                }}
+                recorderControls={recorderControls}
+                downloadOnSavePress={true}
+                downloadFileExtension="mp3"
+                showVisualizer={true}
+              />
+              {!recorderControls.isRecording && <div ref={audioDivRef}></div>}
+            </div>
+          )}
 
-          <div className="w-full h-full mt-4 md:mt-10 flex flex-col items-center svelte-ur6agj">
-            {" "}
-            <div className="w-[90%] md:w-[70%] svelte-ur6agj">
-              <div className="w-full relative">
-                <div className="flex w-full relative overflow-x-hidden border-t-2 px-2 rounded-t-md bg-white border-x-2 items-center gap-[6px] text-sm -mt-[32px]">
-                  <button className="truncate div-container duration-75 hover:text-primary h-full px-2 py-[5.5px] flex items-center gap-2 active-tab-notes svelte-1qdq97v">
-                    {" "}
-                    <p className="text-fade font-medium overflow-hidden text-[13px]">
-                      Transcript
-                    </p>
-                  </button>{" "}
-                  <span className="h-[12px] border-[0.5px] border-[#D0D5DD]"></span>
-                  <button className="truncate div-container duration-75 hover:text-primary h-full px-2 py-[5.5px] flex items-center gap-2 text-[#667085] svelte-1qdq97v">
-                    {" "}
-                    <p className="text-fade font-medium overflow-hidden text-[13px]">
-                      Template: {template}
-                    </p>
-                  </button>{" "}
-                </div>{" "}
-                <div className="bottom-0 -mb-[1.8px] z-[5] absolute left-0 h-[2px] bg-secondary svelte-1qdq97v"></div>
-              </div>
-            </div>{" "}
-            <div className="w-[90%] md:w-[70%] h-[70%] max-h-[600px] svelte-ur6agj">
-              <div className="flex w-full max-h-[600px] h-full svelte-1atycu8">
-                <div
-                  className="bg-white relative flex-col justify-between w-full h-full overflow-hidden max-h-[600px] border-2 resize-none rounded-b-md p-4 focus:outline-none svelte-1atycu8"
-                  id="note-pad-container"
-                >
-                  <div className="text-[#BABABA] svelte-1atycu8">
-                    {recorderControls.isRecording ? (
-                      <span>Finish recording to get transcript</span>
-                    ) : loading ? (
-                      <span>Loading</span>
-                    ) : (
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: converter.makeHtml(transcription),
-                        }}
-                        className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip"
-                      ></div>
-                    )}
+          {type === "inPerson" && (
+            <div className="w-full h-full mt-4 md:mt-10 flex flex-col items-center svelte-ur6agj">
+              {" "}
+              <div className="w-[90%] md:w-[70%] svelte-ur6agj">
+                <div className="w-full relative">
+                  <div className="flex w-full relative overflow-x-hidden border-t-2 px-2 rounded-t-md bg-white border-x-2 items-center gap-[6px] text-sm -mt-[32px]">
+                    <button className="truncate div-container duration-75 hover:text-primary h-full px-2 py-[5.5px] flex items-center gap-2 active-tab-notes svelte-1qdq97v">
+                      {" "}
+                      <p className="text-fade font-medium overflow-hidden text-[13px]">
+                        Transcript
+                      </p>
+                    </button>{" "}
+                    <span className="h-[12px] border-[0.5px] border-[#D0D5DD]"></span>
+                    <button className="truncate div-container duration-75 hover:text-primary h-full px-2 py-[5.5px] flex items-center gap-2 text-[#667085] svelte-1qdq97v">
+                      {" "}
+                      <p className="text-fade font-medium overflow-hidden text-[13px]">
+                        Template: {template}
+                      </p>
+                    </button>{" "}
                   </div>{" "}
+                  <div className="bottom-0 -mb-[1.8px] z-[5] absolute left-0 h-[2px] bg-secondary svelte-1qdq97v"></div>
                 </div>
-              </div>
-            </div>{" "}
-          </div>
+              </div>{" "}
+              <div className="w-[90%] md:w-[70%] h-[70%] max-h-[600px] svelte-ur6agj">
+                <div className="flex w-full max-h-[600px] h-full svelte-1atycu8">
+                  <div
+                    className="bg-white relative flex-col justify-between w-full h-full overflow-hidden max-h-[600px] border-2 resize-none rounded-b-md p-4 focus:outline-none svelte-1atycu8"
+                    id="note-pad-container"
+                  >
+                    <div className="text-[#BABABA] svelte-1atycu8">
+                      {recorderControls.isRecording ? (
+                        <span>Finish recording to get transcript</span>
+                      ) : loading ? (
+                        <span>Loading</span>
+                      ) : (
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: converter.makeHtml(transcription),
+                          }}
+                          className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip"
+                        ></div>
+                      )}
+                    </div>{" "}
+                  </div>
+                </div>
+              </div>{" "}
+            </div>
+          )}
+
+          {type === "online" && (
+            <div className="w-full h-full mt-4 md:mt-10 flex flex-col items-center svelte-ur6agj">
+              {" "}
+              <div className="w-[90%] md:w-[70%] svelte-ur6agj">
+                <div className="w-full relative">
+                  <div className="flex w-full relative overflow-x-hidden border-t-2 px-2 rounded-t-md bg-white border-x-2 items-center gap-[6px] text-sm -mt-[32px]">
+                    <button className="truncate div-container duration-75 hover:text-primary h-full px-2 py-[5.5px] flex items-center gap-2 active-tab-notes svelte-1qdq97v">
+                      {" "}
+                      <p className="text-fade font-medium overflow-hidden text-[13px]">
+                        Transcript
+                      </p>
+                    </button>{" "}
+                    <span className="h-[12px] border-[0.5px] border-[#D0D5DD]"></span>
+                    <button className="truncate div-container duration-75 hover:text-primary h-full px-2 py-[5.5px] flex items-center gap-2 text-[#667085] svelte-1qdq97v">
+                      {" "}
+                      <p className="text-fade font-medium overflow-hidden text-[13px]">
+                        Template: {template}
+                      </p>
+                    </button>{" "}
+                  </div>{" "}
+                  <div className="bottom-0 -mb-[1.8px] z-[5] absolute left-0 h-[2px] bg-secondary svelte-1qdq97v"></div>
+                </div>
+              </div>{" "}
+              <div className="w-[90%] md:w-[70%] h-[70%] max-h-[600px] svelte-ur6agj">
+                <div className="flex w-full max-h-[600px] h-full svelte-1atycu8">
+                  <div
+                    className="bg-white relative flex-col justify-between w-full h-full overflow-hidden max-h-[600px] border-2 resize-none rounded-b-md p-4 focus:outline-none svelte-1atycu8"
+                    id="note-pad-container"
+                  >
+                    <div className="text-[#BABABA] svelte-1atycu8">
+                      <div className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip">
+                        {" "}
+                        {onlineTranscription &&
+                          onlineTranscription.map((sentence, index) => {
+                            const isNewSpeaker =
+                              index === 0 ||
+                              sentence.speaker !==
+                                onlineTranscription[index - 1].speaker;
+                            if (isNewSpeaker) {
+                              return (
+                                <div key={index}>
+                                  <b>{sentence.speaker}:</b>
+                                  {sentence.words.map((word, wordIndex) => (
+                                    <span key={wordIndex}>{word.text} </span>
+                                  ))}
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <span key={index}>
+                                  {sentence.words.map((word, wordIndex) => (
+                                    <span key={wordIndex}>{word.text} </span>
+                                  ))}
+                                </span>
+                              );
+                            }
+                          })}
+                      </div>
+                    </div>{" "}
+                  </div>
+                </div>
+              </div>{" "}
+            </div>
+          )}
         </div>
       )}
     </BaseLayout>
