@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
+const socket = require("socket.io");
 
 const ClientRecord = require("./models/ClientRecordModel");
 const Audio = require("./models/AudioModel");
@@ -12,7 +13,6 @@ const fs = require("fs");
 const axios = require("axios");
 dotenv.config();
 const app = express();
-const port = 5001;
 app.use(cors());
 
 app.use(bodyParser.json());
@@ -93,7 +93,7 @@ app.post("/transcription", async (req, res) => {
         .json({ success: false, message: "ClientRecord not found" });
     }
 
-    clientRecord.transcript.push({
+    const transcriptionData = {
       original_transcript_id: req.body.data.transcript.original_transcript_id,
       speaker: req.body.data.transcript.speaker,
       speaker_id: req.body.data.transcript.speaker_id,
@@ -101,12 +101,14 @@ app.post("/transcription", async (req, res) => {
       is_final: req.body.data.transcript.is_final,
       language: req.body.data.transcript.language,
       source: req.body.data.transcript.source,
-    });
+    };
+    clientRecord.transcript.push(transcriptionData);
 
     // Save the updated clientRecord
     await clientRecord.save();
 
-    console.log("Transcript appended to the clientRecord.");
+    io.to(botId.toString()).emit("transcriptionAdded", transcriptionData);
+
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error processing transcription:", error);
@@ -148,6 +150,28 @@ app.get("/*", function (req, res) {
   );
 });
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+const server = app.listen(process.env.PORT, () => {
+  console.log(`server started on port ${process.env.PORT}`);
+});
+
+const io = socket(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
+
+io.on("connection", (socket) => {
+  socket.on("joinBot", (botId) => {
+    socket.join(botId.toString());
+  });
+
+  socket.on("addTranscription", async (data) => {
+    const botId = data.botId.toString();
+    io.to(botId).emit("transcriptionAdded", data.transcription);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
 });
