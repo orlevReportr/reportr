@@ -43,7 +43,7 @@ function TopNavBar() {
       </div>
       <div
         onClick={() => {
-          navigate("/customize");
+          navigate("/customize/your-templates");
         }}
         style={{
           borderBottom:

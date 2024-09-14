@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="App h-full">
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Consult />} />
         <Route path="/client-records" element={<ClientRecords />} />
         <Route path="/consult" element={<Consult />} />
         <Route
@@ -32,11 +32,11 @@ function App() {
 
         <Route path="/signup" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/meetings" element={<Meetings />} />
+        {/* <Route path="/meetings" element={<Meetings />} />
         <Route path="/clientrecord/:clientRecordId" element={<Meeting />} />
         <Route path="/audios" element={<Audios selectedItem="audios" />} />
         <Route path="/audio/:audioId" element={<Audio />} />
-        <Route path="/chat" element={<Chatting />} />
+        <Route path="/chat" element={<Chatting />} /> */}
       </Routes>
     </div>
   );

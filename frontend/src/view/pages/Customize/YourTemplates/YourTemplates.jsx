@@ -73,6 +73,49 @@ function YourTemplates() {
 
   const converter = new Showdown.Converter();
   const userData = UserData();
+
+  const handleDuplicateTemplate = (template) => {
+    const { content, templateTitle, userId } = template;
+    axiosRequest
+      .post("/template/add", {
+        content,
+        templateTitle: `${templateTitle} duplicate`,
+        userId,
+      })
+      .then((res) => {
+        setTemplates([...templates, res.data.template]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleDeleteTemplate = (template) => {
+    axiosRequest
+      .post("/template/delete", {
+        templateId: template.id,
+      })
+      .then((res) => {
+        setTemplates(templates.filter((t) => t.id !== template.id));
+      });
+  };
+
+  const handleSetDefault = (template) => {
+    axiosRequest
+      .post("/template/set-default", {
+        templateId: template.id,
+        userId: userData.id,
+      })
+      .then((res) => {
+        setTemplates(
+          templates.map((t) => ({
+            ...t,
+            isDefault: t.id === template.id,
+          }))
+        );
+      });
+  };
+
   useEffect(() => {
     axiosRequest
       .post("/template/get", {
@@ -151,29 +194,29 @@ function YourTemplates() {
                                     style={{ padding: 0 }}
                                     content={
                                       <div className="flex flex-col gap-[10px]">
-                                        <div className="flex gap-[5px] cursor-pointer p-[5px] hover:bg-gray-200 rounded items-center">
+                                        <div
+                                          onClick={() => {
+                                            handleSetDefaul(template);
+                                          }}
+                                          className="flex gap-[5px] cursor-pointer p-[5px] hover:bg-gray-200 rounded items-center"
+                                        >
                                           <DefaultIcon />
                                           <span>Set default</span>
                                         </div>
 
-                                        <div className="flex gap-[5px] cursor-pointer p-[5px] hover:bg-gray-200 rounded items-center">
+                                        <div
+                                          className="flex gap-[5px] cursor-pointer p-[5px] hover:bg-gray-200 rounded items-center"
+                                          onClick={() => {
+                                            handleDuplicateTemplate(template);
+                                          }}
+                                        >
                                           <DuplicateIcon />
                                           <span>Duplicate</span>
                                         </div>
 
                                         <div
                                           onClick={() => {
-                                            axiosRequest
-                                              .post("/template/delete", {
-                                                templateId: template.id,
-                                              })
-                                              .then((res) => {
-                                                setTemplates(
-                                                  templates.filter(
-                                                    (t) => t.id !== template.id
-                                                  )
-                                                );
-                                              });
+                                            handleDeleteTemplate(template);
                                           }}
                                           className="flex gap-[5px] cursor-pointer p-[5px] hover:bg-gray-200 rounded items-center"
                                         >
