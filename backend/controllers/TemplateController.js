@@ -1,5 +1,6 @@
 const Counter = require("../models/CounterModel");
 const Template = require("../models/TemplateModel");
+const User = require("../models/UserModel");
 
 const addTemplate = async (req, res) => {
   try {
@@ -83,9 +84,34 @@ const getUserTemplates = async (req, res) => {
   }
 };
 
+const setUserDefaultTemplate = async (req, res) => {
+  try {
+    const { userId, templateId } = req.body;
+    const user = await User.findOne({ id: userId });
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    const template = await Template.findOne({ id: templateId });
+    if (!template) {
+      return res.status(404).json({ message: "Template not found" });
+    }
+
+    user.defaultTemplateId = templateId;
+    template.isDefault = true;
+    await template.save();
+    await user.save();
+    return res.status(200).json({ message: "Default template changed" });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      message: "Server Error!",
+    });
+  }
+};
 module.exports = {
   getUserTemplates,
   addTemplate,
   updateTemplate,
   deleteTemplate,
+  setUserDefaultTemplate,
 };

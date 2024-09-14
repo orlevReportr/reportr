@@ -23,7 +23,7 @@ const TemplateSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    isDefaultTemplate: {
+    isDefault: {
       type: Boolean,
       default: false,
     },
