@@ -1,11 +1,20 @@
+import axios from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import axiosRequest from "../../utils/AxiosConfig";
 
 function TopNavBar() {
   const activeTab = window.location.pathname;
-  console.log(activeTab);
 
   const navigate = useNavigate();
+
+  const handleLoginWithGoogle = async () => {
+    const response = await axiosRequest.get("/oauth/login");
+    const { url } = response.data;
+
+    // Redirect the user to the Google consent screen
+    window.location.href = url;
+  };
   return (
     <div className="flex gap-[10px] items-center py-[10px] px-[50px] bg-[white]">
       <span
@@ -70,6 +79,7 @@ function TopNavBar() {
           <span className="text-[14px]">Settings</span>{" "}
         </div>
       </div>
+      <button onClick={handleLoginWithGoogle}>Login with Google</button>
     </div>
   );
 }
