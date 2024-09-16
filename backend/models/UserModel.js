@@ -14,6 +14,9 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    calendarId: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );
