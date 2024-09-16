@@ -14,6 +14,7 @@ import Meeting from "./view/pages/Meeting/Meeting";
 import Meetings from "./view/pages/Meetings/Meetings";
 import Consult from "./view/pages/Consult/Consult";
 import YourTemplates from "./view/pages/Customize/YourTemplates/YourTemplates";
+import OAuthCallback from "./view/pages/Callback";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
 
         <Route path="/signup" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/callback" element={<OAuthCallback />} />
         {/* <Route path="/meetings" element={<Meetings />} />
         <Route path="/clientrecord/:clientRecordId" element={<Meeting />} />
         <Route path="/audios" element={<Audios selectedItem="audios" />} />
