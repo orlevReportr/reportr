@@ -13,13 +13,22 @@ const fs = require("fs");
 const axios = require("axios");
 dotenv.config();
 const app = express();
-app.use(cors());
-
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow only this origin
+    methods: ["GET", "POST"], // Specify allowed methods if needed
+    credentials: true, // Include cookies in the request if needed
+  })
+);
 app.use(bodyParser.json());
 const _dirname = path.dirname("");
 const buildPath = path.join(_dirname, "../frontend/dist");
 
 app.use(express.static(buildPath));
+
+app.post("/webhook", (req, res) => {
+  console.log(req.body);
+});
 
 app.post("/transcribe", async (req, res) => {
   if (req.body.status === "completed") {
@@ -124,8 +133,12 @@ app.use("/user", UserRouter);
 
 const AudioRouter = require("./routes/AudioRoutes");
 app.use("/audio", AudioRouter);
+
 const TemplateRouter = require("./routes/TemplateRoutes");
 app.use("/template", TemplateRouter);
+
+const OauthRouter = require("./routes/OauthRoutes");
+app.use("/oauth", OauthRouter);
 
 mongoose.connect(process.env.DBURI);
 

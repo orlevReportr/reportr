@@ -118,7 +118,7 @@ const recallFetch = async (meetingUrl) => {
   };
 
   const res = await axios.post(
-    `https://us-west-2.recall.ai/api/v1/bot`,
+    `${process.env.RECALL_API_URL}/api/v1/bot`,
     reqBody,
     {
       headers,
