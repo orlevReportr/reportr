@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, message } from "antd";
 import {
   UserOutlined,
@@ -8,7 +8,8 @@ import {
 } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Login.css"
+import "./Login.css";
+import { UserData } from "../../../utils/UserData";
 function Login() {
   const [buttonLoading, setButtonLoading] = useState();
   const [email, setEmail] = useState();
@@ -27,7 +28,7 @@ function Login() {
       .then((res) => {
         localStorage.setItem("token", res.data.token);
         setButtonLoading(false);
-        navigate("/");
+        navigate("/consult");
       })
       .catch((e) => {
         showtoast("error", "Wrong Credentials");
@@ -52,6 +53,13 @@ function Login() {
       },
     });
   };
+  const userData = UserData();
+  useEffect(() => {
+    if (userData) {
+      navigate("/consult");
+    }
+  }, []);
+
   return (
     <div
       style={{
@@ -63,11 +71,9 @@ function Login() {
         width: "100%",
       }}
     >
-      <div
-        className="login-container"
-      >
+      <div className="login-container">
         <div>
-          <img src="../assets/logo.png"  width={"100%"}></img>
+          <img src="../assets/logo.png" width={"100%"}></img>
         </div>
         <span>Welcome back!</span>
         <br></br>
