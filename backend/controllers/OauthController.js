@@ -3,6 +3,7 @@ const Calendar = require("../models/CalendarModel");
 const User = require("../models/UserModel");
 const Counter = require("../models/CounterModel");
 const axios = require("axios");
+const { format } = require("path");
 
 const {
   CLIENT_ID,
@@ -117,7 +118,6 @@ const callbackFunction = async (req, res) => {
         { $inc: { seq: 1 } },
         { new: true, upsert: true }
       );
-      console.log(recallCalendar.data);
       const calendar = new Calendar({
         id: counter.seq,
         platform: "google_calendar",
@@ -133,20 +133,77 @@ const callbackFunction = async (req, res) => {
         `Successfully created calendar in database with id: ${calendar.id}`
       );
     }
-    // // Step 4: Use access token to access the user's Google Calendar events
-    // const eventsResponse = await axios.get(
-    //   "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-    //   {
-    //     headers: {
-    //       Authorization: `Bearer ${access_token}`,
-    //     },
-    //   }
-    // );
 
-    // // Render the events to the user
-    // res.json(eventsResponse.data.items);
+    if (!recallCalendar) {
+      console.log("no calendar event");
+      return res.status(500).send("Recall error");
+    }
+    let eventsResponse;
+    try {
+      eventsResponse = await axios.get(
+        `${process.env.RECALL_API_URL}/api/v2/calendar-events/?calendar_id=${recallCalendar.data.id}`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `${process.env.RECALL_API_TOKEN}`, // Use Bearer scheme with environment token
+          },
+        }
+      );
+    } catch (error) {
+      console.log("error");
+      return res.status(500).json({
+        message: "Recall error",
+      });
+    }
 
-    res.status(200).send("OAuth flow completed");
+    console.log(eventsResponse.data.results.length);
+
+    for (let i = 0; i < eventsResponse.data.results.length; i++) {
+      const event = eventsResponse.data.results[i];
+      const scheduledBot = await axios
+        .post(
+          `${process.env.RECALL_API_URL}/api/v2/calendar-events/${event.id}/bot/`,
+          {
+            deduplication_key: `${event.start_time}-${event.meeting_url}`,
+            bot_config: {
+              bot_name: `${process.env.BOT_NAME}`,
+              transcription_options: {
+                provider: "default",
+              },
+              real_time_transcription: {
+                destination_url: `${process.env.PUBLIC_URL}/transcription`,
+                partial_results: false,
+              },
+              zoom: {
+                request_recording_permission_on_host_join: true,
+                require_recording_permission: true,
+              },
+              teams: {
+                login_required: true,
+              },
+            },
+          },
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `${process.env.RECALL_API_TOKEN}`,
+              "content-type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          console.log("scheduled bot");
+
+          console.log(response.data);
+        })
+        .catch((err) => {
+          console.log(err.response.data.errors);
+        });
+    }
+
+    res.status(200).json({
+      message: "OAuth flow completed",
+    });
   } catch (error) {
     console.error(
       "Error during OAuth flow:",
