@@ -1,7 +1,8 @@
 const Counter = require("../models/CounterModel");
 const Template = require("../models/TemplateModel");
 const User = require("../models/UserModel");
-
+const OpenAI = require("openai");
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API });
 const addTemplate = async (req, res) => {
   try {
     const counter = await Counter.findOneAndUpdate(
@@ -108,10 +109,36 @@ const setUserDefaultTemplate = async (req, res) => {
     });
   }
 };
+
+const generateSummary = async (req, res) => {
+  try {
+    const { content, transcriptionText } = req.body;
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI assistant tasked with formatting transcriptions. The following text is a transcription of a conversation between two speakers. Please format the text with the exact text provided in this format ${content}. Do not add any additional content or context. Transcription text: ${transcriptionText}`,
+        },
+      ],
+      model: "gpt-4o",
+    });
+
+    const formattedTranscription = completion.choices[0].message.content;
+    return res
+      .status(200)
+      .json({ message: "Summary generated", summary: formattedTranscription });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      message: "Server Error!",
+    });
+  }
+};
 module.exports = {
   getUserTemplates,
   addTemplate,
   updateTemplate,
   deleteTemplate,
   setUserDefaultTemplate,
+  generateSummary,
 };

@@ -14,8 +14,8 @@ cloudinary.config({
 });
 
 const OpenAI = require("openai");
-const ClientRecord = require("../models/ClientRecordModel");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API });
+const ClientRecord = require("../models/ClientRecordModel");
 
 const addAudio = async (req, res) => {
   try {
@@ -71,16 +71,14 @@ const addAudio = async (req, res) => {
       id: counter.seq,
       transcription: formattedTranscription,
       type: "inPerson",
-      note: [
+      notes: [
         {
           templateId: req.body.templateId,
-          templateName: template.name,
+          templateName: template.templateTitle,
         },
       ],
       ...req.body,
     });
-
-    console.log(formattedTranscription);
 
     await audio.save();
 
