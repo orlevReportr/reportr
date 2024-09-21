@@ -99,3 +99,6 @@ button:focus-visible {
 .ant-form-item {
   margin-bottom: 0;
 }
+.ant-tabs-nav-wrap {
+  height: 31px;
+}

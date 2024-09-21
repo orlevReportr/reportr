@@ -15,6 +15,7 @@ import Meetings from "./view/pages/Meetings/Meetings";
 import Consult from "./view/pages/Consult/Consult";
 import YourTemplates from "./view/pages/Customize/YourTemplates/YourTemplates";
 import OAuthCallback from "./view/pages/Callback";
+import ConsultMeeting from "./view/pages/ConsultMeeting/ConsultMeeting";
 
 function App() {
   return (
@@ -28,6 +29,10 @@ function App() {
           element={<YourTemplates />}
         />
         <Route path="/customize/your-templates" element={<YourTemplates />} />
+        <Route
+          path="/client-records/:clientRecordId"
+          element={<ConsultMeeting />}
+        />
 
         <Route path="/settings" element={<ClientRecords />} />
 
