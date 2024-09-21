@@ -15,44 +15,13 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import SortIcon from "../../icons/SortIcon";
-const columns = [
-  {
-    title: "Client Name",
-    dataIndex: "clientName",
-  },
-  {
-    title: "Consultation Date",
-    dataIndex: "createdAt",
-    render: (text) => <span>{formatDate(text)}</span>,
-  },
-  {
-    title: "",
-    dataIndex: "",
-    render: () => (
-      <div className="flex gap-[30px] items-end justify-end">
-        <div className="flex gap-[10px] text-[red] cursor-pointer">
-          <DeleteOutlined />
-          <span>Delete</span>
-        </div>
-        <div className="flex gap-[10px] text-[#949cbe] cursor-pointer">
-          <ExportOutlined /> <span>Review</span>
-        </div>
-      </div>
-    ),
-  },
-];
+import { useNavigate } from "react-router-dom";
 
 function ClientRecords() {
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {},
-    getCheckboxProps: (record) => ({
-      disabled: record.name === "Disabled User",
-      name: record.name,
-    }),
-  };
   const userData = UserData();
-
   const [clientRecords, setClientRecords] = useState([]);
+  const [isSearchVisible, setSearchVisible] = useState(false); // State to manage search input visibility
+
   useEffect(() => {
     axiosRequest
       .post("/clientRecord/get", {
@@ -62,16 +31,35 @@ function ClientRecords() {
         setClientRecords(res.data.clientRecords);
       });
   }, []);
-  const [isSearchVisible, setSearchVisible] = useState(false); // State to manage search input visibility
 
   const toggleSearchInput = () => {
     setSearchVisible(!isSearchVisible); // Toggle search input visibility
   };
+
   const handleSort = (sortField) => {
     const sortedRecords = [...clientRecords].sort((a, b) =>
       a[sortField].localeCompare(b[sortField])
     );
     setClientRecords(sortedRecords);
+  };
+  const navigate = useNavigate();
+  const handleReviewClick = (clientRecordId) => {
+    // Logic for reviewing a specific client record using its ID
+    console.log("Review clicked for record:", clientRecordId);
+    navigate(`/client-records/${clientRecordId}`);
+  };
+
+  const handleDeleteClick = (clientRecordId) => {
+    axiosRequest
+      .post("/clientRecord/delete", { clientRecordId })
+      .then((res) => {
+        setClientRecords((prevRecords) =>
+          prevRecords.filter((record) => record._id !== clientRecordId)
+        );
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   };
 
   const sortOptions = (
@@ -93,6 +81,50 @@ function ClientRecords() {
       </div>
     </div>
   );
+
+  const columns = [
+    {
+      title: "Client Name",
+      dataIndex: "clientName",
+    },
+    {
+      title: "Consultation Date",
+      dataIndex: "createdAt",
+      render: (text) => <span>{formatDate(text)}</span>,
+    },
+    {
+      title: "",
+      dataIndex: "_id", // Assuming each record has a unique `id`
+      render: (clientRecordId) => (
+        <div className="flex gap-[30px] items-end justify-end">
+          <div
+            className="flex gap-[10px] text-[red] cursor-pointer"
+            onClick={() => handleDeleteClick(clientRecordId)}
+          >
+            <DeleteOutlined />
+            <span>Delete</span>
+          </div>
+          <div
+            className="flex gap-[10px] text-[#949cbe] cursor-pointer"
+            onClick={() => handleReviewClick(clientRecordId)}
+          >
+            <ExportOutlined />
+            <span>Review</span>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      // Logic for row selection
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === "Disabled User",
+      name: record.name,
+    }),
+  };
 
   return (
     <BaseLayout>

@@ -216,19 +216,14 @@ function Consult() {
         clientName,
         meetingUrl,
         userId: userData.id,
+        templateId: template,
       })
       .then((res) => {
-        console.log(res.data);
-
         const newBotId = res.data.botId;
-        console.log(newBotId);
-
-        // Store botId in state
         setBotId(newBotId);
 
         if (!socket) {
-          console.log("connected to socket io");
-          const newSocket = io("http://localhost:5001");
+          const newSocket = io(import.meta.env.VITE_BACKEND);
           setSocket(newSocket);
         }
       });
