@@ -79,6 +79,7 @@ const createAndStartRecording = async (req, res) => {
         {
           templateId: templateId,
           templateName: template.templateTitle,
+          noteContent: template.content,
         },
       ],
       ...req.body,
@@ -282,7 +283,10 @@ const addTemplateToClientRecord = async (req, res) => {
     clientRecord.notes.push({
       templateId: templateId,
       templateName: template.templateTitle,
+      noteContent: template.content,
     });
+
+    console.log(clientRecord.notes);
 
     // Save the updated client record
     await clientRecord.save();

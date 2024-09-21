@@ -75,6 +75,7 @@ const addAudio = async (req, res) => {
         {
           templateId: req.body.templateId,
           templateName: template.templateTitle,
+          noteContent: template.content,
         },
       ],
       ...req.body,
