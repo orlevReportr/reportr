@@ -20,7 +20,7 @@ function App() {
   return (
     <div className="App h-full">
       <Routes>
-        <Route path="/" element={<Consult />} />
+        <Route path="/" element={<Login />} />
         <Route path="/client-records" element={<ClientRecords />} />
         <Route path="/consult" element={<Consult />} />
         <Route
