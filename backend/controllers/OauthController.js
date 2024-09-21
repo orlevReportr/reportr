@@ -4,6 +4,7 @@ const User = require("../models/UserModel");
 const Counter = require("../models/CounterModel");
 const axios = require("axios");
 const { format } = require("path");
+const ClientRecord = require("../models/ClientRecordModel");
 
 const {
   CLIENT_ID,
@@ -191,10 +192,33 @@ const callbackFunction = async (req, res) => {
             },
           }
         )
-        .then((response) => {
+        .then(async (response) => {
           console.log("scheduled bot");
 
           console.log(response.data);
+
+          const counter = await Counter.findOneAndUpdate(
+            { id: "autovalClientRecord" },
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+          );
+          const currentClientRecord = await ClientRecord.findOne({
+            botId: response.data.bots[0].bot_id,
+          });
+          if (currentClientRecord) {
+            return;
+          }
+          const clientRecord = new ClientRecord({
+            id: counter.seq,
+            status: "Waiting",
+            clientName: `Client ${counter.seq}`,
+            type: "online",
+            meetingUrl: response.data.meeting_url,
+            botId: response.data.bots[0].bot_id,
+            userId,
+          });
+
+          await clientRecord.save();
         })
         .catch((err) => {
           console.log(err.response.data.errors);

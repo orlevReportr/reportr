@@ -2,6 +2,7 @@ const ClientRecord = require("../models/ClientRecordModel");
 const Counter = require("../models/CounterModel");
 const axios = require("axios");
 const { getSummary, getFormattedSummary } = require("../utils/getSummary");
+const Template = require("../models/TemplateModel");
 
 const createClientRecord = async (req, res) => {
   try {
@@ -14,6 +15,7 @@ const createClientRecord = async (req, res) => {
     const clientRecord = new ClientRecord({
       id: counter.seq,
       status: "Waiting",
+      type: "online",
       ...req.body,
     });
 
@@ -57,15 +59,28 @@ const startRecording = async (req, res) => {
 const createAndStartRecording = async (req, res) => {
   try {
     // Step 1: Create a new client record with auto-increment ID
+    const { templateId } = req.body;
+    const template = await Template.findOne({ id: templateId });
+
+    if (!template) {
+      return res.status(400).json({ error: "Template not found" });
+    }
+
     const counter = await Counter.findOneAndUpdate(
       { id: "autovalClientRecord" },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
-
     const clientRecord = new ClientRecord({
       id: counter.seq,
       status: "Waiting",
+      type: "online",
+      notes: [
+        {
+          templateId: templateId,
+          templateName: template.templateTitle,
+        },
+      ],
       ...req.body,
     });
 
@@ -197,7 +212,6 @@ const getUserClientRecords = async (req, res) => {
   try {
     const { userId } = req.body;
     const clientRecords = await ClientRecord.find({ userId });
-
     return res.status(200).json({
       status: "success",
       message: "ClientRecords retrieved",
@@ -229,6 +243,97 @@ const getOneClientRecord = async (req, res) => {
   }
 };
 
+const deleteOneClientRecord = async (req, res) => {
+  try {
+    const { clientRecordId } = req.body;
+    const clientRecord = await ClientRecord.findOneAndDelete({
+      _id: clientRecordId,
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "ClientRecord deleted",
+      clientRecord,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      message: "Server Error!",
+    });
+  }
+};
+
+const addTemplateToClientRecord = async (req, res) => {
+  try {
+    const { clientRecordId, templateId } = req.body;
+
+    // Find the template by id
+    const template = await Template.findOne({ id: templateId });
+    if (!template) {
+      return res.status(400).json({ error: "Template not found" });
+    }
+
+    // Find the client record by id
+    const clientRecord = await ClientRecord.findById(clientRecordId);
+    if (!clientRecord) {
+      return res.status(400).json({ error: "ClientRecord not found" });
+    }
+
+    // Add the template info to the notes array
+    clientRecord.notes.push({
+      templateId: templateId,
+      templateName: template.templateTitle,
+    });
+
+    // Save the updated client record
+    await clientRecord.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Template added to ClientRecord",
+      clientRecord,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const updateNoteContent = async (req, res) => {
+  try {
+    const { clientRecordId, templateId, content: noteContent } = req.body;
+
+    // Find the client record by id
+    const clientRecord = await ClientRecord.findById(clientRecordId);
+    if (!clientRecord) {
+      return res.status(400).json({ error: "ClientRecord not found" });
+    }
+
+    // Find the note to update
+    const noteToUpdate = clientRecord.notes.find(
+      (note) => note.templateId === templateId
+    );
+    if (!noteToUpdate) {
+      return res.status(400).json({ error: "Note not found" });
+    }
+
+    // Update the note content
+    console.log(req.body);
+    noteToUpdate.noteContent = noteContent;
+
+    // Save the updated client record
+    await clientRecord.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Note content updated successfully",
+      clientRecord,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   startRecording,
   createClientRecord,
@@ -236,4 +341,7 @@ module.exports = {
   getUserClientRecords,
   getOneClientRecord,
   createAndStartRecording,
+  deleteOneClientRecord,
+  addTemplateToClientRecord,
+  updateNoteContent,
 };
