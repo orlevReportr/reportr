@@ -42,6 +42,20 @@ const TranscriptSchema = mongoose.Schema({
   },
 });
 
+const Note = mongoose.Schema({
+  templateId: {
+    type: Number,
+    required: true,
+  },
+  templateName: {
+    type: String,
+    required: true,
+  },
+  noteContent: {
+    type: String,
+  },
+});
+
 const ClientRecordSchema = mongoose.Schema(
   {
     id: {
@@ -51,6 +65,10 @@ const ClientRecordSchema = mongoose.Schema(
     clientName: {
       type: String,
       required: true,
+    },
+    clientGender: {
+      type: String,
+      // required: true,
     },
     userId: {
       type: Number,
@@ -62,22 +80,27 @@ const ClientRecordSchema = mongoose.Schema(
     status: {
       type: String,
       required: true,
+      default: "Waiting",
     },
     meetingUrl: {
       type: String,
+    },
+    notes: {
+      type: [Note],
       required: true,
-    },
-    summary: {
-      type: String,
-    },
-    formattedSummary: {
-      type: String,
     },
     clientRecordStartTime: {
       type: Date,
     },
     clientRecordEndTime: {
       type: Date,
+    },
+    type: {
+      type: String,
+      required: true,
+    },
+    transcription: {
+      type: String,
     },
     transcript: [TranscriptSchema],
     formattedTranscript: {
