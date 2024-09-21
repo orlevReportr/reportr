@@ -276,6 +276,12 @@ function Consult() {
       .then((res) => {
         setSelectedClientRecord(res.data.clientRecord);
         setOnlineTranscription(res.data.clientRecord.transcript);
+        setEditorContents((prev) => ({
+          ...prev,
+          [templateId]: res.data.clientRecord.notes.find(
+            (note) => note.templateId === templateId
+          )?.noteContent,
+        }));
         const listOfAlreadySelectedTemplates = res.data.clientRecord.notes.map(
           (tempalte) => tempalte.templateId
         );

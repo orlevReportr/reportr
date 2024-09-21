@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import BaseLayout from "../../layouts/BaseLayout";
-import { Button, Input, Modal, Popover, Select, Spin, Tabs } from "antd";
-import { LoadingOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
-import PlayIcon from "../../icons/PlayIcon";
+import { Button, Popover, Spin, Tabs } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import axiosRequest from "../../../utils/AxiosConfig";
 import { UserData } from "../../../utils/UserData";
-import { AudioRecorder } from "react-audio-voice-recorder";
-import { useAudioRecorder } from "react-audio-voice-recorder";
-import ChevronRight from "../../icons/ChevronRight";
 import * as Showdown from "showdown";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
@@ -48,14 +44,12 @@ function ConsultMeeting() {
           (template) => template.templateId
         );
 
-        // Set non-selected templates
         setNonSelectedTemplates(
           templates.filter(
             (template) => !listOfAlreadySelectedTemplates.includes(template.id)
           )
         );
 
-        // Set editor contents based on the existing notes
         const newEditorContents = {};
         clientRecord.notes.forEach((note) => {
           newEditorContents[note.templateId] = note.noteContent || "";
@@ -112,6 +106,12 @@ function ConsultMeeting() {
             (template) => !listOfAlreadySelectedTemplates.includes(template.id)
           )
         );
+        setEditorContents((prev) => ({
+          ...prev,
+          [templateId]: res.data.clientRecord.notes.find(
+            (note) => note.templateId === templateId
+          )?.noteContent,
+        }));
       })
       .catch((err) => {
         console.log(err);
