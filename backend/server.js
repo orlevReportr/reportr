@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const socket = require("socket.io");
+const Counter = require("./models/CounterModel");
 
 const ClientRecord = require("./models/ClientRecordModel");
 const Audio = require("./models/AudioModel");
@@ -26,8 +27,100 @@ const buildPath = path.join(_dirname, "../frontend/dist");
 
 app.use(express.static(buildPath));
 
-app.post("/webhook", (req, res) => {
+app.post("/webhook2", async (req, res) => {
   console.log(req.body);
+  if (req.body.event === "calendar.sync_events") {
+    const calendar = await Calendar.findOne({
+      recallId: req.body.data.calendar_id,
+    });
+
+    const userId = calendar.userId;
+    let eventsResponse;
+    try {
+      eventsResponse = await axios.get(
+        `${process.env.RECALL_API_URL}/api/v2/calendar-events/?calendar_id=${req.body.data.calendar_id}&is_deleted=false`,
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: `${process.env.RECALL_API_TOKEN}`, // Use Bearer scheme with environment token
+          },
+        }
+      );
+    } catch (error) {
+      console.log("error");
+      console.log(error);
+      return res.status(500).json({
+        message: "Recall error",
+      });
+    }
+
+    console.log(eventsResponse.data.results.length);
+
+    for (let i = 0; i < eventsResponse.data.results.length; i++) {
+      const event = eventsResponse.data.results[i];
+      const scheduledBot = await axios
+        .post(
+          `${process.env.RECALL_API_URL}/api/v2/calendar-events/${event.id}/bot/`,
+          {
+            deduplication_key: `${event.start_time}-${event.meeting_url}`,
+            bot_config: {
+              bot_name: `${process.env.BOT_NAME}`,
+              transcription_options: {
+                provider: "default",
+              },
+              real_time_transcription: {
+                destination_url: `${process.env.PUBLIC_URL}/transcription`,
+                partial_results: false,
+              },
+              zoom: {
+                request_recording_permission_on_host_join: true,
+                require_recording_permission: true,
+              },
+              teams: {
+                login_required: true,
+              },
+            },
+          },
+          {
+            headers: {
+              accept: "application/json",
+              Authorization: `${process.env.RECALL_API_TOKEN}`,
+              "content-type": "application/json",
+            },
+          }
+        )
+        .then(async (response) => {
+          console.log("scheduled bot");
+          console.log(response.data);
+
+          const counter = await Counter.findOneAndUpdate(
+            { id: "autovalClientRecord" },
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+          );
+          const currentClientRecord = await ClientRecord.findOne({
+            botId: response.data.bots[0].bot_id,
+          });
+          if (currentClientRecord) {
+            return;
+          }
+          const clientRecord = new ClientRecord({
+            id: counter.seq,
+            status: "Waiting",
+            clientName: `Client ${counter.seq}`,
+            type: "online",
+            meetingUrl: response.data.meeting_url,
+            botId: response.data.bots[0].bot_id,
+            userId,
+          });
+
+          await clientRecord.save();
+        })
+        .catch((err) => {
+          console.log(err?.response?.data?.errors || err);
+        });
+    }
+  }
 });
 
 app.post("/transcribe", async (req, res) => {
@@ -138,6 +231,7 @@ const TemplateRouter = require("./routes/TemplateRoutes");
 app.use("/template", TemplateRouter);
 
 const OauthRouter = require("./routes/OauthRoutes");
+const Calendar = require("./models/CalendarModel");
 app.use("/oauth", OauthRouter);
 
 mongoose.connect(process.env.DBURI);
