@@ -27,9 +27,11 @@ function ConsultMeeting() {
   const [editorContents, setEditorContents] = useState({});
   const [selectedTabs, setSelectedTabs] = useState({});
   useEffect(() => {
-    axiosRequest.post("/template/get", { userId: userData.id }).then((res) => {
-      setTemplates(res.data.templates);
-    });
+    axiosRequest
+      .post("/template/getAll", { userId: userData.id })
+      .then((res) => {
+        setTemplates(res.data.templates);
+      });
   }, []);
 
   useEffect(() => {

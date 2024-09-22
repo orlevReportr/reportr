@@ -209,10 +209,12 @@ function Consult() {
   const converter = new Showdown.Converter();
 
   useEffect(() => {
-    axiosRequest.post("/template/get", { userId: userData.id }).then((res) => {
-      setTemplates(res.data.templates);
-      setTemplate(res.data.templates[0].id);
-    });
+    axiosRequest
+      .post("/template/getAll", { userId: userData.id })
+      .then((res) => {
+        setTemplates(res.data.templates);
+        setTemplate(res.data.templates[0].id);
+      });
   }, []);
 
   const handleOnlineMeeting = () => {

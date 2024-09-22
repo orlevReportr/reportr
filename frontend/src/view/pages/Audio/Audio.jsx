@@ -46,7 +46,7 @@ function Audio() {
       });
   }, []);
 
-  const [summary,setSummary]=useState(true)
+  const [summary, setSummary] = useState(true);
 
   const [drawer, setDrawer] = useState(false);
   return (
@@ -89,21 +89,33 @@ function Audio() {
             </div>
 
             <div className="big-card">
-              <div style={{ display: "flex",marginBottom:10 }}>
-                <div className={`summary-container left ${summary&& "selected-summary"}`} onClick={()=>{
-                  setSummary(!summary)
-                }}>
+              <div style={{ display: "flex", marginBottom: 10 }}>
+                <div
+                  className={`summary-container left ${
+                    summary && "selected-summary"
+                  }`}
+                  onClick={() => {
+                    setSummary(!summary);
+                  }}
+                >
                   <h5>Summary</h5>
                 </div>
-                <div className={`summary-container right ${!summary&& "selected-summary"}`} onClick={()=>{
-                  setSummary(!summary)
-                }}>
+                <div
+                  className={`summary-container right ${
+                    !summary && "selected-summary"
+                  }`}
+                  onClick={() => {
+                    setSummary(!summary);
+                  }}
+                >
                   <h5>Formatted Summary</h5>
                 </div>
               </div>
-              {summary&&<div>{audio && audio.summary}</div>}
+              {summary && <div>{audio && audio.summary}</div>}
 
-              {!summary&&<Markdown>{audio && audio.formattedSummary}</Markdown>}
+              {!summary && (
+                <Markdown>{audio && audio.formattedSummary}</Markdown>
+              )}
             </div>
           </div>
         </div>
