@@ -35,6 +35,7 @@ function ConsultMeeting() {
   }, []);
 
   useEffect(() => {
+    if (templates.length === 0) return;
     axiosRequest
       .post("/clientRecord/getOne", { clientRecordId })
       .then((res) => {
@@ -45,6 +46,8 @@ function ConsultMeeting() {
         const listOfAlreadySelectedTemplates = clientRecord.notes.map(
           (template) => template.templateId
         );
+        // console.log(templates.map((template) => template.id));
+        // console.log(listOfAlreadySelectedTemplates);
 
         setNonSelectedTemplates(
           templates.filter(
