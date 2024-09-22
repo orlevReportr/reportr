@@ -14,7 +14,7 @@ const TemplateSchema = mongoose.Schema(
       type: String,
       enum: ["ReportAI", "Custom"],
       required: true,
-      default: "ReportAI",
+      default: "Custom",
     },
     userId: {
       type: Number,

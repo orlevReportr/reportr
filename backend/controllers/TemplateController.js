@@ -134,6 +134,44 @@ const generateSummary = async (req, res) => {
     });
   }
 };
+
+const getReportAITemplates = async (req, res) => {
+  try {
+    const templates = await Template.find({ userId: -1 });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Templates retrieved",
+      templates,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      message: "Server Error!",
+    });
+  }
+};
+
+const getAllTemplates = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const templates = await Template.find({
+      $or: [{ userId }, { userId: -1 }],
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Templates retrieved",
+      templates,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      message: "Server Error!",
+    });
+  }
+};
+
 module.exports = {
   getUserTemplates,
   addTemplate,
@@ -141,4 +179,6 @@ module.exports = {
   deleteTemplate,
   setUserDefaultTemplate,
   generateSummary,
+  getReportAITemplates,
+  getAllTemplates,
 };
