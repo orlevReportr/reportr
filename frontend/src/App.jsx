@@ -16,6 +16,7 @@ import Consult from "./view/pages/Consult/Consult";
 import YourTemplates from "./view/pages/Customize/YourTemplates/YourTemplates";
 import OAuthCallback from "./view/pages/Callback";
 import ConsultMeeting from "./view/pages/ConsultMeeting/ConsultMeeting";
+import ReportrAITemplates from "./view/pages/Customize/ReporterAITemplates/ReportrAITemplates";
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
         <Route path="/consult" element={<Consult />} />
         <Route
           path="/customize/reportr-ai-templates"
-          element={<YourTemplates />}
+          element={<ReportrAITemplates />}
         />
         <Route path="/customize/your-templates" element={<YourTemplates />} />
         <Route
