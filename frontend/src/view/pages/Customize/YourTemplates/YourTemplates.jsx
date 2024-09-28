@@ -169,7 +169,7 @@ function YourTemplates() {
                               dangerouslySetInnerHTML={{
                                 __html: converter.makeHtml(template.content),
                               }}
-                              className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip"
+                              className="py-2 z-1 text-normal min-h-[150px] overflow-auto text-labelSubText text-[11px] leading-[180%] w-[90%] relative"
                             ></div>
                             <div className="absolute bottom-0 left-0 right-0 h-16 z-1"></div>
                           </div>

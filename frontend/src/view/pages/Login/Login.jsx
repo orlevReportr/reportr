@@ -6,10 +6,11 @@ import {
   EyeInvisibleOutlined,
   EyeTwoTone,
 } from "@ant-design/icons";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { UserData } from "../../../utils/UserData";
+import axiosRequest from "../../../utils/AxiosConfig";
+
 function Login() {
   const [buttonLoading, setButtonLoading] = useState();
   const [email, setEmail] = useState();
@@ -20,11 +21,10 @@ function Login() {
   const handleLoginButton = () => {
     setButtonLoading(true);
 
-    axios
-      .post(`${import.meta.env.VITE_BACKEND}/user/login`, {
-        email,
-        password,
-      })
+    axiosRequest("/user/login", {
+      email,
+      password,
+    })
       .then((res) => {
         localStorage.setItem("token", res.data.token);
         setButtonLoading(false);
