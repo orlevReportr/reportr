@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import ClientRecords from "./view/pages/ClientRecords/ClientRecords";
 import Audio from "./view/pages/Audio/Audio";
@@ -17,12 +17,19 @@ import YourTemplates from "./view/pages/Customize/YourTemplates/YourTemplates";
 import OAuthCallback from "./view/pages/Callback";
 import ConsultMeeting from "./view/pages/ConsultMeeting/ConsultMeeting";
 import ReportrAITemplates from "./view/pages/Customize/ReporterAITemplates/ReportrAITemplates";
+import { UserData } from "./utils/UserData";
 
 function App() {
+  const userData = UserData();
+  useEffect(() => {
+    if (!userData) {
+      navigate("/login");
+    }
+  }, [userData]);
   return (
     <div className="App h-full">
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/client-records" element={<ClientRecords />} />
         <Route path="/consult" element={<Consult />} />
         <Route

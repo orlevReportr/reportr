@@ -243,7 +243,7 @@ function ConsultMeeting() {
                                 selectedClientRecord.transcription
                               ),
                             }}
-                            className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip"
+                            className="py-2 z-1 text-normal min-h-[150px] overflow-auto text-labelSubText text-[11px] leading-[180%] w-[90%] relative"
                           ></div>
                         </div>{" "}
                       </div>
@@ -373,7 +373,7 @@ function ConsultMeeting() {
                     <div className="flex w-full max-h-[600px] h-full ">
                       <div className="bg-white relative flex-col justify-between w-full h-full overflow-hidden max-h-[600px] border-2 resize-none rounded-b-md p-4 focus:outline-none ">
                         <div className="text-[#BABABA] ">
-                          <div className="py-2 z-1 text-normal h-[150px] text-labelSubText text-[11px] leading-[180%] w-[90%] relative overflow-clip">
+                          <div className="py-2 z-1 text-normal min-h-[150px] overflow-auto text-labelSubText text-[11px] leading-[180%] w-[90%] relative">
                             {" "}
                             {onlineTranscription &&
                               onlineTranscription.map((sentence, index) => {
