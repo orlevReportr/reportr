@@ -21,14 +21,18 @@ function ClientRecords() {
   const userData = UserData();
   const [clientRecords, setClientRecords] = useState([]);
   const [isSearchVisible, setSearchVisible] = useState(false); // State to manage search input visibility
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    setLoading(true);
     axiosRequest
       .post("/clientRecord/get", {
         userId: userData.id,
       })
       .then((res) => {
         setClientRecords(res.data.clientRecords);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -44,8 +48,6 @@ function ClientRecords() {
   };
   const navigate = useNavigate();
   const handleReviewClick = (clientRecordId) => {
-    // Logic for reviewing a specific client record using its ID
-    console.log("Review clicked for record:", clientRecordId);
     navigate(`/client-records/${clientRecordId}`);
   };
 
@@ -170,6 +172,7 @@ function ClientRecords() {
           </Popover>
         </div>
         <Table
+          loading={loading}
           rowSelection={{
             type: "checkbox",
             ...rowSelection,
