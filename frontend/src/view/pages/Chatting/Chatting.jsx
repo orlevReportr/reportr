@@ -11,7 +11,7 @@ function Chatting() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
-  const [transcript,setTranscript]=useState();
+  const [transcript, setTranscript] = useState();
   const [messages, setMessages] = useState([
     {
       role: "user",
@@ -25,15 +25,14 @@ function Chatting() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-   
     if (!userData) {
       navigate("/login");
     }
-    if(!state){
-        navigate("/");
-      }else{
-        setTranscript(state.transcript)
-      }
+    if (!state) {
+      navigate("/");
+    } else {
+      setTranscript(state.transcript);
+    }
   }, []);
 
   useEffect(() => {
@@ -108,7 +107,6 @@ function Chatting() {
         width: "100%",
         flexDirection: "row",
         height: "100%",
-        
       }}
     >
       <div className="drawer-button">
@@ -116,27 +114,28 @@ function Chatting() {
       </div>
       <CustomSideBar drawer={drawer} />
       <div
-  style={{
-    width: "80%",
-    display: "flex",
-    flexDirection: "column",
-    margin: 20,
-    height: "100%", // Ensure the parent container occupies the full height
-    position: "relative", // Add position relative to ensure sticky works
-  }}
-  onClick={() => setDrawer(!drawer)}
->
- <div
-      style={{
-        width: "90%",
-
-      }}
-    >          {messages &&
+        style={{
+          width: "80%",
+          display: "flex",
+          flexDirection: "column",
+          margin: 20,
+          height: "100%", // Ensure the parent container occupies the full height
+          position: "relative", // Add position relative to ensure sticky works
+        }}
+        onClick={() => setDrawer(!drawer)}
+      >
+        <div
+          style={{
+            width: "90%",
+          }}
+        >
+          {" "}
+          {messages &&
             messages.map((e, i) => {
               if (i === 0) {
                 return (
                   <div key={i} className="message" style={{ marginBottom: 10 }}>
-                    <b style={{ margin: 0 }}>Compliai Bot</b>
+                    <b style={{ margin: 0 }}>Reportr AI</b>
                     <p style={{ margin: 0 }}>
                       Ask me any question about this transcript!
                     </p>
@@ -147,7 +146,7 @@ function Chatting() {
                 return (
                   <div key={i} className="message" style={{ marginBottom: 10 }}>
                     <b style={{ margin: 0 }}>
-                      {e.role === "user" ? "You" : "Compliai Bot"}
+                      {e.role === "user" ? "You" : "Reportr AI"}
                     </b>
                     <p style={{ margin: 0 }}>{e.content}</p>
                   </div>
@@ -157,19 +156,19 @@ function Chatting() {
           <div ref={messagesEndRef} />
         </div>
         <div style={{ position: "sticky", bottom: 10, height: "auto" }}>
-        <Input
-          disabled={loading}
-          value={currentMessage}
-          onChange={handleInputChange}
-          onPressEnter={handleKeyPress}
-          suffix={
-            loading ? (
-              <LoadingOutlined />
-            ) : (
-              <SendOutlined onClick={handleSendMessage} />
-            )
-          }
-        />
+          <Input
+            disabled={loading}
+            value={currentMessage}
+            onChange={handleInputChange}
+            onPressEnter={handleKeyPress}
+            suffix={
+              loading ? (
+                <LoadingOutlined />
+              ) : (
+                <SendOutlined onClick={handleSendMessage} />
+              )
+            }
+          />
         </div>
       </div>
     </div>
