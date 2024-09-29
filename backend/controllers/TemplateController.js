@@ -3,6 +3,9 @@ const Template = require("../models/TemplateModel");
 const User = require("../models/UserModel");
 const OpenAI = require("openai");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API });
+const fs = require('fs');
+const path = require('path');
+
 const addTemplate = async (req, res) => {
   try {
     const counter = await Counter.findOneAndUpdate(
@@ -113,17 +116,36 @@ const setUserDefaultTemplate = async (req, res) => {
 const generateSummary = async (req, res) => {
   try {
     const { content, transcriptionText } = req.body;
+
+    // Read the prompt template from the file
+    const promptFilePath = path.join(__dirname, '../', 'utils', 'prompts', 'promptNoExample.txt');
+    let promptTemplate = fs.readFileSync(promptFilePath, 'utf8');
+
+    // Replace placeholders in the prompt
+    const prompt = promptTemplate
+        .replace('{{TEMPLATE}}', content)
+        .replace('{{TRANSCRIPTION}}', transcriptionText);
+
+    console.log("-------------------------------PROMPT----------------------------------")
+    console.log("Prompt: ", prompt)
+    console.log("-------------------------------PROMPT----------------------------------")
+
+
     const completion = await openai.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: `You are an AI assistant tasked with formatting transcriptions. The following text is a transcription of a conversation between two speakers. Please format the text with the exact text provided in this format ${content}. Do not add any additional content or context. Transcription text: ${transcriptionText}`,
+          content: prompt,
         },
       ],
       model: "gpt-4o",
     });
 
     const formattedTranscription = completion.choices[0].message.content;
+
+    console.log("-------------------------------formattedTranscription----------------------------------")
+    console.log("formattedTranscription: ", formattedTranscription)
+    console.log("-------------------------------formattedTranscription----------------------------------")
     return res
       .status(200)
       .json({ message: "Summary generated", summary: formattedTranscription });
