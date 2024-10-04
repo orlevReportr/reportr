@@ -34,6 +34,10 @@ function ConsultMeeting() {
       });
   }, []);
 
+    /**
+     * We should think about storing records in the client local storage instead of making an API call to retrieve the
+     * file note everytime we visit the page. Maybe thisnt isnt a good idea, not sure how memory usage of this approach.
+     */
   useEffect(() => {
     if (templates.length === 0) return;
     axiosRequest
