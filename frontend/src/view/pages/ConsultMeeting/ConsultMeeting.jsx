@@ -275,7 +275,7 @@ function ConsultMeeting() {
                                 [templateId]: value,
                               }))
                             }
-                            selectedTab={selectedTabs[templateId] || "write"}
+                            selectedTab={selectedTabs[templateId] || "preview"}
                             onTabChange={(tab) =>
                               setSelectedTabs((prev) => ({
                                 ...prev,
@@ -435,7 +435,7 @@ function ConsultMeeting() {
                                 [templateId]: value,
                               }))
                             }
-                            selectedTab={selectedTabs[templateId] || "write"}
+                            selectedTab={selectedTabs[templateId] || "preview"}
                             onTabChange={(tab) =>
                               setSelectedTabs((prev) => ({
                                 ...prev,
