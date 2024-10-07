@@ -102,3 +102,16 @@ button:focus-visible {
 .ant-tabs-nav-wrap {
   height: 31px;
 }
+.mde-preview-content {
+  height: 60vh;
+  overflow-y: auto;
+}
+
+.mde-textarea-wrapper {
+  height: 60vh;
+  overflow-y: auto;
+}
+
+.mde-text {
+  height: 100% !important;
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BaseLayout from "../../layouts/BaseLayout";
 import { Button, Popover, Spin, Tabs } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { HeartFilled, LoadingOutlined } from "@ant-design/icons";
 import axiosRequest from "../../../utils/AxiosConfig";
 import { UserData } from "../../../utils/UserData";
 import * as Showdown from "showdown";
@@ -34,10 +34,10 @@ function ConsultMeeting() {
       });
   }, []);
 
-    /**
-     * We should think about storing records in the client local storage instead of making an API call to retrieve the
-     * file note everytime we visit the page. Maybe thisnt isnt a good idea, not sure how memory usage of this approach.
-     */
+  /**
+   * We should think about storing records in the client local storage instead of making an API call to retrieve the
+   * file note everytime we visit the page. Maybe thisnt isnt a good idea, not sure how memory usage of this approach.
+   */
   useEffect(() => {
     if (templates.length === 0) return;
     axiosRequest
@@ -432,6 +432,7 @@ function ConsultMeeting() {
                         {" "}
                         <div className="w-full flex flex-col gap-[10px]">
                           <ReactMde
+                            style={{ height: "100%" }}
                             value={editorContents[templateId] || ""}
                             onChange={(value) =>
                               setEditorContents((prev) => ({
