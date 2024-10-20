@@ -13,13 +13,25 @@ const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
 dotenv.config();
+
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173", // Local development
+  "https://app.reportr.ai", // Production frontend
+];
+
 app.use(
-  cors({
-    origin: "http://localhost:5173", // Allow only this origin
-    methods: ["GET", "POST"], // Specify allowed methods if needed
-    credentials: true, // Include cookies in the request if needed
-  })
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      methods: ["GET", "POST"],
+      credentials: true,
+    })
 );
 app.use(bodyParser.json());
 const _dirname = path.dirname("");
@@ -264,9 +276,10 @@ const server = app.listen(process.env.PORT, () => {
 const io = socket(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://app.reportr.ai"],
   },
 });
+
 
 io.on("connection", (socket) => {
   socket.on("joinBot", (botId) => {
