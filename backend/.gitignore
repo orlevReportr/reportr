@@ -1,19 +1,22 @@
+# Node modules
 node_modules/
+
+# Build artifacts
 *.zip
 .DS_Store
-.idea
-notes.md
+
+# IDE configurations
+.idea/
+
+# Environment variables
 .env.local
 .env*
-.env
 
-*.pdfnode_modules/
-*.zip
-.DS_Store
-.idea
+# Other
 notes.md
-.env.local
+/uploads/
 *.pdf
-.env
 
-/uploads
+# Temporary files
+*.tmp
+*.temp

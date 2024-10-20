@@ -9,27 +9,35 @@ lerna-debug.log*
 
 # Dependency directories
 node_modules/
+
+# Build artifacts
 dist/
 dist-ssr/
+build/
+*.zip
+*.pdf
+/uploads/
 
 # Environment variables
 *.local
 .env
+.env.local
+.env*
 
-# Editor directories and files
-.vscode/
+# IDE configurations
 .idea/
+.vscode/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Build artifacts
-build/
-coverage/
 
 # Temporary files
 *.tmp
 *.temp
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Other
+notes.md
+coverage/
