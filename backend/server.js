@@ -269,8 +269,12 @@ app.get("/*", function (req, res) {
   );
 });
 // Start the server
-const server = app.listen(process.env.PORT, () => {
-  console.log(`server started on port ${process.env.PORT}`);
+const server = app.listen(process.env.PORT || 5001, () => {
+  if(process.env.PORT) {
+    console.log(`server started on port ${process.env.PORT}`);
+  } else {
+    console.log(`server started on port 5001`);
+  }
 });
 
 const io = socket(server, {
